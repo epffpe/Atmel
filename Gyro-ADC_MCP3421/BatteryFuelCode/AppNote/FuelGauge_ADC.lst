@@ -1,0 +1,1864 @@
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;/**************************************************************/
+                      00002 ;/*  File Name: FuelGauge_ADC.asm
+                      00003 ;/***************************************/
+                      00004 ;/------ This routine performs the following tasks:
+                      00005 ; (a) Writes configuration register of the MCP3421
+                      00006 ; (b) Read the ADC results
+                      00007 ;
+                      00008 ;       Ver 1.0
+                      00009 ;       Date: 7-28-2007
+                      00010 ;               AIPD
+                      00011 ;               Microchip Technology Inc 
+                      00012 ;/************************************************************/
+                      00013 ;************************************************************************
+                      00014 ;               LEGAL NOTICE
+                      00015 ;
+                      00016 ;  The information contained in this document is proprietary and 
+                      00017 ;  confidential information of Microchip Technology Inc.  Therefore all 
+                      00018 ;  parties are required to sign a non-disclosure agreement before  
+                      00019 ;  receiving this document.
+                      00020 ;
+                      00021 ;  The information contained in this Application Note is for suggestion 
+                      00022 ;  only.  It is your responsibility to ensure that your application meets 
+                      00023 ;  with your specifications.  No representation or warranty is given and 
+                      00024 ;  no liability is assumed by Microchip Technology Incorporated with 
+                      00025 ;  respect to the accuracy or use of such information or infringement of 
+                      00026 ;  patents or other intellectual property arising from such use or 
+                      00027 ;  otherwise.
+                      00028 ;
+                      00029 ;                Software License Agreement
+                      00030 ;
+                      00031 ; The software supplied herewith by Microchip Technology Incorporated 
+                      00032 ; (the "Company") for its PICmicro® Microcontroller is intended and 
+                      00033 ; supplied to you, the Company's customer, for use solely and 
+                      00034 ; exclusively on Microchip PICmicro Microcontroller products. The 
+                      00035 ; software is owned by the Company and/or its supplier, and is 
+                      00036 ; protected under applicable copyright laws. All rights are reserved. 
+                      00037 ;  Any use in violation of the foregoing restrictions may subject the 
+                      00038 ; user to criminal sanctions under applicable laws, as well as to 
+                      00039 ; civil liability for the breach of the terms and conditions of this 
+                      00040 ; license.
+                      00041 ;
+                      00042 ; THIS SOFTWARE IS PROVIDED IN AN "AS IS" CONDITION. NO WARRANTIES, 
+                      00043 ; WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED 
+                      00044 ; TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A 
+                      00045 ; PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT, 
+                      00046 ; IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR 
+                      00047 ; CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+                      00048 
+                      00049 ;************************************************************************
+                      00050 
+                      00051 
+                      00052 
+                      00053 
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00054 
+                      00055         #include        <p18f4550.inc>
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ;  $Id: P18F4550.INC,v 1.10 2006/10/25 17:47:56 nairnj Exp $
+                      00005 ;  MPASM PIC18F4550 processor include
+                      00006 ; 
+                      00007 ;  (c) Copyright 1999-2006 Microchip Technology, All rights reserved
+                      00008 ;==========================================================================
+                      00009 
+                      01642         LIST
+                      00056         #include        FuelGauge_Project.inc
+                      00001 ;/****************************************/
+                      00002 ;/*  File Name: FuelGauge_Project.inc
+                      00003 ;/***************************************/
+                      00004 
+                      00005 
+                      00006 #define sw_1_dir        TRISC,7                 ;Scroll Push-button switch S1, RRC7 on PCB
+                      00007 #define sw_1            PORTC,7
+                      00008 
+                      00009 #define sw_2_dir        TRISB,0                 ;Select Push-button switch S2, RB0 on PCB
+                      00010 #define sw_2            PORTB,0
+                      00011 
+                      00012 #define sw_3_dir        TRISB,1                 ;Select Push-button switch S3, RB1 on PCB
+                      00013 #define sw_3            PORTB,1
+                      00014 
+                      00015 #define sw_4_dir        TRISB,2                 ;Select Push-button switch S3, RB1 on PCB
+                      00016 #define sw_4            PORTB,2
+                      00017 
+                      00018 
+                      00019 
+                      00020 #define SCL_dir         TRISA,4                 ; I2C SCL & SDA ...
+                      00021 #define SCLK_I2C        PORTA,4
+                      00022 #define SDA_dir         TRISA,5
+                      00023 #define SDA_I2C         PORTA,5
+                      00024 
+                      00025 
+                      00026 ; define test points
+                      00027 #define Sync_LED11      PORTD,6
+                      00028 #define TP16_LED12      PORTD,7
+                      00029 #define TP17_LED13      PORTD,3
+                      00030 
+                      00031 
+                      00032 
+                      00033 #define         DELAYTIME       .50                     ;Debounce Delay Constant ~10ms
+                      00034 
+                      00057         #include        FuelGaugeDemo_ADC.inc
+                      00001 ;/****************************************/
+                      00002 ;/*  File Name: FuelGaugeDemo_ADC.inc
+                      00003 ;/***************************************/
+                      00004 
+  0000                00005         extern  Config_Data, ADC_Sign, Gain_Selected, ADC_Value1, ADC_Value2, ADC_Value3
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+  0000                00006         extern  IsitForU5_Volt
+  0000                00007         global  ADC_Write_Config, ADC_Read_400KHz
+                      00008         
+                      00058 
+                      00059 
+                      00060 
+                      00061 ADC_VAR         UDATA
+000000                00062 ACK_Flag        res 1
+000001                00063 ReadyBitFlag    res 1
+000002                00064 COUNT_Bits              res 1
+000003                00065 COUNT_Byte              res 1
+                      00066 ;SendACKret             res 1
+                      00067 
+                      00068 
+                      00069         code
+                      00070 
+                      00071 ;/******************************************************************/
+000000                00072 ADC_Write_Config
+                      00073 ;------------------------------------------------------------------
+                      00074 ; This routine writes the MCP3421 Configuration Register
+                      00075 ; I2C Speed: 400 KHz
+                      00076 ;------------------------------------------------------------------
+                      00077 
+                      00078 ;---- Write command Sequence: -------------------------------------
+                      00079 ; start+1101(device code)+000(address bit:preprogrammed) +0(write) + Configuration (8 bits)
+                      00080 ;------------------------------------------------------------------
+000000 EC?? F???      00081         call    Start_bit_400KHz        
+                      00082 ;-----------------------
+000004                00083 Address_bits_400KHz_write
+                      00084 
+000004 EC?? F???      00085         call    Send_pulse_high_400KHz          ; "1"
+000008 EC?? F???      00086         call    Send_pulse_high_400KHz          ; "1"
+00000C EC?? F???      00087         call    Send_pulse_low_400KHz           ; "0"
+000010 EC?? F???      00088         call    Send_pulse_high_400KHz          ; "1"
+000014 EC?? F???      00089         call    Send_pulse_low_400KHz           ; "0"
+                      00090 ;       call    Send_pulse_low_400KHz           ; "0"
+                      00091 ;       call    Send_pulse_low_400KHz           ; "0"
+                      00092 
+                      00093 ; for U5 --> Voltage
+                      00094 
+000018 010?           00095         banksel IsitForU5_Volt
+00001A A0??           00096         btfss   IsitForU5_Volt,0                        ; U1 = current measurement, U5 = voltage measure
+                            ment
+00001C EF?? F???      00097         goto    ItsForU1_write                          ; for Current Measurement
+                      00098 
+000020 EC?? F???      00099         call    Send_pulse_high_400KHz          ; U5 --> voltage
+000024 EC?? F???      00100         call    Send_pulse_high_400KHz          ; 
+000028 EF?? F???      00101         goto    Write_bit
+                      00102 ;-----------------------------------------------
+                      00103 
+00002C                00104 ItsForU1_write
+00002C EC?? F???      00105         call    Send_pulse_low_400KHz           ; U1 --> current
+000030 EC?? F???      00106         call    Send_pulse_low_400KHz           ; 
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00107 
+000034                00108 Write_bit
+000034 EC?? F???      00109         call    Send_pulse_low_400KHz           ; writing "0"
+                      00110 
+                      00111 ;----- 9 th pulse -----
+000038 EC?? F???      00112         call    LookingForACK_400KHz
+                      00113 ;----------------------
+                      00114 
+                      00115 ; check ACK pulse flag
+00003C 010?           00116         banksel ACK_Flag
+00003E B0??           00117         btfsc   ACK_Flag,0
+000040 EF?? F???      00118         goto    ADC_Write_Config                        ; Repeat from start.  Not ACked yet!
+                      00119 
+                      00120 ;----- Send Configuration Bits -----------
+                      00121 
+000044 010?           00122         banksel COUNT_Bits
+000046 0E08           00123         movlw   .8
+000048 6E??           00124         movwf   COUNT_Bits
+00004A                00125 Send_Config_400KHz
+00004A 010?           00126         banksel Config_Data
+00004C 3600           00127         rlcf    Config_Data,1
+00004E A0D8           00128         btfss   STATUS,C
+000050 EF?? F???      00129         goto    Conf_400KHz_Low         
+000054 EC?? F???      00130         call    Send_pulse_high_400KHz
+000058 EF?? F???      00131         goto    JumpConf_400KHz
+00005C                00132 Conf_400KHz_Low
+00005C EC?? F???      00133         call    Send_pulse_low_400KHz
+000060                00134 JumpConf_400KHz
+000060 2E??           00135         decfsz  COUNT_Bits
+000062 EF?? F???      00136         goto    Send_Config_400KHz
+                      00137 ;---------------------------------------
+                      00138 ;----- 9 th pulse -----
+000066 EC?? F???      00139         call    LookingForACK_400KHz
+                      00140 
+                      00141 ; check ACK pulse flag
+00006A 010?           00142         banksel ACK_Flag
+00006C B0??           00143         btfsc   ACK_Flag,0
+00006E EF?? F???      00144         goto    ADC_Write_Config                                ; Repeat from start.  Not acknowlodged y
+                            et!
+                      00145 ;----------------------
+                      00146 ; Send Stop Pulse
+                      00147 
+000072 EC?? F???      00148         call    Send_StopBit_400KHz
+000076 0012           00149         return
+                      00150 
+                      00151 ;/**************************************************************************/
+000078                00152 ADC_Read_400KHz
+                      00153 ; --------------------------------------------------------------------------
+                      00154 ; This routine reads the ADC conversion results.
+                      00155 ; I2C Speed: 400 kHz 
+                      00156 ;
+                      00157 ; Sequence: 
+                      00158 ;       U5(Battery Volt): Start pulse +1101(device code)+000(address bit:preprogrammed) +1(read) + Confi
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                            guration (8 bits)
+                      00159 ;       U1(Current): Start pulse +1101(device code)+011(address bit:preprogrammed) +1(read) + Configurat
+                            ion (8 bits)
+                      00160 ;---------------------------------------------------------------------------
+                      00161 
+000078 010?           00162         banksel ReadyBitFlag
+00007A 6A??           00163         clrf    ReadyBitFlag
+                      00164 
+                      00165 ; turns-on sync pulse ---> only to trig better the SDA and SCL pules on scope
+00007C 8C83           00166         bsf             Sync_LED11
+00007E EC?? F???      00167         call    Start_bit_400KHz        
+                      00168 
+000082 9C83           00169         bcf             Sync_LED11
+                      00170 ;-----------------------
+000084                00171 Address_bits_400KHz_read
+                      00172 
+000084 EC?? F???      00173         call    Send_pulse_high_400KHz          ; "1"
+000088 EC?? F???      00174         call    Send_pulse_high_400KHz          ; "1"
+00008C EC?? F???      00175         call    Send_pulse_low_400KHz           ; "0"
+000090 EC?? F???      00176         call    Send_pulse_high_400KHz          ; "1"
+000094 EC?? F???      00177         call    Send_pulse_low_400KHz           ; "0"
+                      00178 
+                      00179 ; for U5 --> for Battery Voltage
+000098 A0??           00180         btfss   IsitForU5_Volt,0                        ; U1 = current measurement, U5 = voltage measure
+                            ment
+00009A EF?? F???      00181         goto    ItsForU1_read                           ; for current
+                      00182 
+00009E EC?? F???      00183         call    Send_pulse_high_400KHz          ; U5 --> voltage  
+0000A2 EC?? F???      00184         call    Send_pulse_high_400KHz          ; 
+0000A6 EF?? F???      00185         goto    Read_bit
+                      00186 ;---------------------------------------------------------
+                      00187 
+0000AA                00188 ItsForU1_read
+0000AA EC?? F???      00189         call    Send_pulse_low_400KHz           ; U1 --> current measurement
+0000AE EC?? F???      00190         call    Send_pulse_low_400KHz           ; 
+                      00191 
+0000B2                00192 Read_bit
+0000B2 EC?? F???      00193         call    Send_pulse_high_400KHz          ; "1" --> Reading
+                      00194 ;----- 9 th pulse -----
+                      00195 
+0000B6 EC?? F???      00196         call    LookingForACK_400KHz
+                      00197 
+                      00198 ; check ACK pulse flag
+0000BA B0??           00199         btfsc   ACK_Flag,0
+0000BC EF?? F???      00200         goto    ADC_Read_400KHz                         ; Repeat from start. Not acknowlodged !
+                      00201 ;----------------------
+                      00202 
+                      00203 ;------------------------------------------------------------
+0000C0                00204 Read_ADC_3blocks
+                      00205 
+                      00206 ;-------- Instruction ---------------------------------------
+                      00207 ;       (a) MCU sends I2C clocks
+                      00208 ;       (b) Keep the MCU' SDA line in trisate (default) as an input pin
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00209 ;       (c) Give ACK pulse (bring SDA line low) after each byte
+                      00210 ;       (d) Operate in 18 bit mode 
+                      00211 ;------------------------------------------------------------
+                      00212 
+                      00213 ;-- Configure SDA_Pin as input
+0000C0 010F           00214         banksel PORTA   
+0000C2 9A80           00215         bcf             PORTA,5         ; SDA
+0000C4 9A89           00216         bcf             LATA,5          ; SDA
+                      00217 
+0000C6 9880           00218         bcf             PORTA,4         ; SCL
+0000C8 9889           00219         bcf             LATA,4          ; SCL
+0000CA 9892           00220         bcf             SCL_dir         ; SCL pin --> output
+                      00221 
+0000CC 8A92           00222         bsf             SDA_dir         ; SDA pin --> input
+                      00223 
+0000CE 9A80           00224         bcf             PORTA,5         ; SDA
+0000D0 9A89           00225         bcf             LATA,5          ; SDA
+                      00226 ;-------------------------------------------------------------
+                      00227 ; Initialize ADC_Value Array
+0000D2 010?           00228         banksel ADC_Value1
+0000D4 6A??           00229         CLRF    ADC_Value1
+0000D6 6A??           00230         CLRF    ADC_Value2
+0000D8 6A??           00231         CLRF    ADC_Value3
+                      00232 ;       CLRF    ADC_Value4
+                      00233 
+                      00234 ;Reading_ADC Results
+                      00235 ;Testing ready bit in Configuratin byte: continuous reading until it is "0"
+                      00236 
+0000DA 010?           00237         banksel ADC_Value1
+0000DC EE?? F0??      00238         lfsr    FSR0,ADC_Value1         ; load FSR0 with ADC_Value1
+                      00239 
+                      00240 ;---------------------------------
+0000E0 010?           00241         banksel COUNT_Byte
+0000E2 0E03           00242         movlw   .3                                      ; Read 3 bytes and another 1 byte after this for
+                             configuration byte
+0000E4 6E??           00243         movwf   COUNT_Byte
+                      00244 
+0000E6                00245 Read_OneByte_400KHz
+                      00246 
+0000E6 010?           00247         banksel COUNT_Bits
+0000E8 0E08           00248         movlw   .8                                      ; read 8 bits not including ACK
+0000EA 6E??           00249         movwf   COUNT_Bits
+                      00250 
+0000EC                00251 Give_8Clocks_400KHz
+0000EC 010F           00252         banksel PORTA
+0000EE 9880           00253         bcf             SCLK_I2C        
+0000F0 0000           00254         nop
+0000F2 0000           00255         nop
+0000F4 0000           00256         nop     
+0000F6 0000           00257         nop
+0000F8 0000           00258         nop
+0000FA 0000           00259         nop
+0000FC 0000           00260         nop     
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0000FE 0000           00261         nop
+                      00262 
+000100 8880           00263         bsf             SCLK_I2C                
+                      00264 
+                      00265 ;--- Data collection Begins ---- 
+                      00266 
+000102 90D8           00267         bcf             STATUS,C
+000104                00268 Test_3Bytes
+                      00269         
+000104                00270 Test_SDA_Pin
+000104 AA80           00271         btfss   SDA_I2C                         ; test SDA pin = RA4 pin
+000106 EF?? F???      00272         goto    Shift_Bits
+00010A 80D8           00273         bsf             STATUS,C                
+                      00274 
+00010C                00275 Shift_Bits              
+00010C 36EF           00276         rlcf    INDF0                           ;Shift digit 1 bit left
+00010E 90D8           00277         bcf             STATUS,C
+                      00278 
+                      00279 ;---- Data collection end ----
+                      00280 
+000110 010?           00281         banksel COUNT_Bits
+000112 2E??           00282         decfsz  COUNT_Bits
+000114 EF?? F???      00283         goto    Give_8Clocks_400KHz
+                      00284 ;--------------
+000118 28EE           00285         incf    POSTINC0,W
+00011A 90D8           00286         bcf             STATUS,C                
+                      00287 ;--------------
+                      00288 
+00011C 0000           00289         nop
+00011E 9880           00290         bcf             SCLK_I2C                
+000120 0000           00291         nop
+000122 EC?? F???      00292         call    SendACK_400KHz
+                      00293 
+000126 010?           00294         banksel COUNT_Byte
+000128 2E??           00295         decfsz  COUNT_Byte
+00012A EF?? F???      00296         goto    Read_OneByte_400KHz
+                      00297 ;       goto    Read_OneByte_400KHz
+                      00298 
+                      00299 
+                      00300 ; now check ready bit
+                      00301         
+00012E                00302 Read_ReadyBit_firstBit
+                      00303 
+00012E 010?           00304         banksel ReadyBitFlag
+                      00305 
+000130 010?           00306         banksel COUNT_Bits
+000132 0E01           00307         movlw   .1                              ; not including ACK
+000134 6E??           00308         movwf   COUNT_Bits
+                      00309 
+000136                00310 Give_8Clocks_Continue_1
+                      00311 
+                      00312 ;--------------------------------
+000136 9A89           00313         bcf             LATA,5
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000138 9A80           00314         bcf             PORTA,5         ; SDA pin
+00013A 8A92           00315         bsf             TRISA,5         ; SDA --> input 
+                      00316 ;-------------------------------
+                      00317 
+00013C 9880           00318         bcf             SCLK_I2C                
+00013E 0000           00319         nop
+000140 0000           00320         nop
+000142 0000           00321         nop     
+000144 0000           00322         nop
+000146 0000           00323         nop
+000148 0000           00324         nop     
+00014A 0000           00325         nop
+                      00326 
+00014C 8880           00327         bsf             SCLK_I2C                
+                      00328 
+00014E AA80           00329         btfss   PORTA,5                         ;Test if RDY_Bar is low on SDA pin = RA5 pin
+000150 EF?? F???      00330         goto    ReadyBit_Done
+000154 EF?? F???      00331         goto    KeepContinue
+                      00332         
+000158                00333 ReadyBit_Done
+000158 010?           00334         banksel ReadyBitFlag
+00015A 80??           00335         bsf             ReadyBitFlag,0
+                      00336 
+00015C                00337 KeepContinue
+                      00338 ;-------------------------------------
+00015C 010?           00339         banksel COUNT_Bits
+00015E 0E07           00340         movlw   .7                                      ; 7 bits not including ACK
+000160 6E??           00341         movwf   COUNT_Bits
+                      00342 
+000162                00343 Give_8Clocks_Continue_2
+000162 9880           00344         bcf             SCLK_I2C                
+000164 0000           00345         nop
+000166 0000           00346         nop
+000168 0000           00347         nop
+00016A 0000           00348         nop     
+00016C 0000           00349         nop
+00016E 0000           00350         nop
+000170 0000           00351         nop     
+000172 0000           00352         nop
+                      00353 
+000174 8880           00354         bsf             SCLK_I2C                
+000176 010?           00355         banksel COUNT_Bits
+000178 2E??           00356         decfsz  COUNT_Bits
+00017A EF?? F???      00357         goto    Give_8Clocks_Continue_2
+00017E 0000           00358         nop
+000180 9880           00359         bcf             SCLK_I2C        
+000182 0000           00360         nop
+                      00361 
+000184 EF?? F???      00362         goto    Final_OneByte   
+                      00363 
+                      00364 
+000188 010?           00365         banksel ReadyBitFlag
+00018A A0??           00366         btfss   ReadyBitFlag,0
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00018C EC?? F???      00367         call    SendACK_400KHz
+                      00368 
+                      00369 
+000190 010?           00370         banksel ReadyBitFlag
+000192 A0??           00371         btfss   ReadyBitFlag,0
+000194 EF?? F???      00372         goto    Read_ReadyBit_firstBit
+                      00373 
+                      00374 
+                      00375 ; read one last byte after reading ready bit
+                      00376 ;-------------------------------------------
+                      00377 
+000198                00378 Final_OneByte
+                      00379 
+000198 010?           00380         banksel COUNT_Bits
+00019A 0E08           00381         movlw   .8                                              ; 8 bits not including ACK
+00019C 6E??           00382         movwf   COUNT_Bits
+                      00383 
+00019E                00384 Give_Last8Clocks
+00019E 010F           00385         banksel PORTA
+0001A0 9880           00386         bcf             SCLK_I2C                
+0001A2 0000           00387         nop
+0001A4 0000           00388         nop
+0001A6 0000           00389         nop     
+0001A8 0000           00390         nop
+0001AA 0000           00391         nop
+0001AC 0000           00392         nop
+0001AE 0000           00393         nop     
+0001B0 0000           00394         nop
+                      00395 
+0001B2 8880           00396         bsf             SCLK_I2C                
+                      00397 ;       nop
+                      00398 ;       nop
+                      00399 ;       nop
+0001B4 010?           00400         banksel COUNT_Bits
+0001B6 2E??           00401         decfsz  COUNT_Bits
+0001B8 EF?? F???      00402         goto    Give_Last8Clocks
+0001BC 0000           00403         nop
+0001BE 9880           00404         bcf             SCLK_I2C                
+0001C0 0000           00405         nop
+                      00406 
+0001C2 EF?? F???      00407         goto    Finish_Reading
+                      00408 
+                      00409 ; Done for the final one byte 
+                      00410 
+                      00411 ;-----------------------------------------------------
+                      00412 
+0001C6                00413 Finish_Reading
+0001C6 EC?? F???      00414         call    Send_StopBit_400KHz
+                      00415 
+                      00416 ;----- testing Ready Bit------------------------------
+0001CA 010?           00417         banksel ReadyBitFlag
+0001CC A0??           00418         btfss   ReadyBitFlag,0
+0001CE EF?? F???      00419         goto    ADC_Read_400KHz                 ; send a read command again
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0001D2 0012           00420         return
+                      00421         
+                      00422 ;-----------------------------------------------------
+0001D4                00423 LookingForACK_400KHz
+                      00424 
+0001D4 010?           00425         banksel ACK_Flag
+0001D6 6A??           00426         clrf    ACK_Flag
+                      00427 ; -- trisate the PORTA SDA pin input ---> Need to change to input for ACK response
+                      00428 
+0001D8 9A80           00429         bcf             PORTA,5
+0001DA 9A89           00430         bcf             LATA,5
+0001DC 8A92           00431         bsf             SDA_dir                 ; SDA ---> Change to input
+                      00432 
+0001DE 9880           00433         bcf             SCLK_I2C                
+0001E0 0000           00434         nop
+0001E2 0000           00435         nop
+0001E4 0000           00436         nop             ; 1.5 us delay
+                      00437 
+0001E6 8880           00438         bsf             SCLK_I2C                
+0001E8 0000           00439         nop
+0001EA 0000           00440         nop
+0001EC 0000           00441         nop             ; 1.5 us delay
+                      00442 
+0001EE BA80           00443         btfsc   SDA_I2C
+0001F0 80??           00444         bsf             ACK_Flag,0
+0001F2 9880           00445         bcf             SCLK_I2C                
+                      00446         
+                      00447 ;---- Tristate MCU SDA pin to output after receiving ACK --------
+0001F4 010F           00448         banksel PORTA
+                      00449 
+0001F6 9A92           00450         bcf             SDA_dir                 ; SDA ---> Change to Output
+0001F8 9A80           00451         bcf             SDA_I2C
+0001FA 9A80           00452         bcf             PORTA,5
+0001FC 9A89           00453         bcf             LATA,5
+                      00454 ;---------------------------------------------------------------
+0001FE 0000           00455         nop
+000200 0000           00456         nop
+000202 0000           00457         nop
+000204 0000           00458         nop             ; 2 us delay --> not necessary
+000206 0012           00459         return
+                      00460 
+                      00461 
+                      00462 ;/*************************************************************/
+                      00463 
+000208                00464 Start_bit_400KHz
+                      00465 ;-- Configure I2C Pins as output
+                      00466         
+000208 9892           00467         bcf             SCL_dir         ; SCL pin --> output
+00020A 9A92           00468         bcf             SDA_dir         ; SDA pin --> output
+                      00469 
+                      00470 ;----- Creating stop condition ---------------
+00020C 8880           00471         bsf             SCLK_I2C                
+00020E 0000           00472         nop
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 11
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000210 0000           00473         nop
+000212 8A80           00474         bsf             SDA_I2C                 ;  creates stop condition first before tart condition
+                      00475 ;                                                       ; depending on previous condition
+                      00476 ;
+                      00477 ;       nop
+000214 EC?? F???      00478         call    delay_5us                
+                      00479 
+                      00480 ;----- Creating start condtion --------------
+000218 0000           00481         nop
+00021A 0000           00482         nop
+00021C 8880           00483         bsf             SCLK_I2C                
+00021E 0000           00484         nop
+000220 0000           00485         nop
+000222 EC?? F???      00486         call    delay_5us               
+000226 0000           00487         nop
+000228 0000           00488         nop
+                      00489 
+00022A 9A80           00490         bcf             SDA_I2C                 ;  creates stop condition first before tart condition
+                      00491                                                         ; depending on previous condition
+00022C 0000           00492         nop
+00022E 0000           00493         nop
+000230 0000           00494         nop
+                      00495 ;-----------------------------------------
+000232 0000           00496         nop
+000234 0000           00497         nop
+000236 0000           00498         nop
+000238 0000           00499         nop
+                      00500 
+00023A 0000           00501         nop
+00023C 0000           00502         nop
+00023E 0000           00503         nop
+000240 9A80           00504         bcf             SDA_I2C ; Start Pulse: SDA --> bring low from high during sclk is high
+000242 0000           00505         nop
+000244 0000           00506         nop
+000246 0000           00507         nop
+000248 0000           00508         nop
+00024A 0000           00509         nop
+00024C 0000           00510         nop
+00024E 9880           00511         bcf             SCLK_I2C                ; sclk
+                      00512 
+000250 0000           00513         nop
+000252 0000           00514         nop
+000254 0012           00515         return
+                      00516 
+                      00517 
+                      00518 ;/**********************************************************/
+000256                00519 Send_StopBit_400KHz                     ; Stop bit: Bring SDA Pin to high from low when SCL is low
+                      00520 ;-- Configure I2C Pins as output
+000256 9A80           00521         bcf             PORTA,5                 ; SDA
+000258 9A89           00522         bcf             LATA,5                  ; SDA
+00025A 9A92           00523         bcf             SDA_dir                 ; SCL pin --> output
+                      00524 
+00025C 9880           00525         bcf             SCLK_I2C
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 12
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00025E 9A80           00526         bcf             SDA_I2C
+                      00527 ;---------------------
+000260 0000           00528         nop
+000262 0000           00529         nop
+000264 0000           00530         nop                                             ; total 1.5 us
+000266 8880           00531         bsf             SCLK_I2C                ; bring up sclk hi
+000268 0000           00532         nop
+00026A 0000           00533         nop
+00026C 8A80           00534         bsf             SDA_I2C                 ; bring data line high
+00026E 0000           00535         nop
+000270 0000           00536         nop
+000272 0000           00537         nop
+000274 0000           00538         nop
+000276 0000           00539         nop                                             
+                      00540 ; ---- tristate SDA pin to input again ---------
+000278 8A92           00541         bsf             SDA_dir
+00027A 9A80           00542         bcf             SDA_I2C
+00027C 9A89           00543         bcf             LATA,5
+                      00544 ;-----------------------------------------------
+00027E 0012           00545         return
+                      00546 
+                      00547 
+                      00548 ;/*******************************************************************/
+000280                00549 Send_pulse_high_400KHz                  ; "1"
+                      00550 
+000280 9892           00551         bcf             SCL_dir
+000282 9A92           00552         bcf             SDA_dir
+                      00553 ;------------------------
+                      00554 
+000284 8A80           00555         bsf             SDA_I2C                 ; 1 st pulse --> bring data line high during sclk is low
+000286 0000           00556         nop
+000288 0000           00557         nop
+00028A 0000           00558         nop
+00028C 8880           00559         bsf             SCLK_I2C                ; bring slck high
+00028E 0000           00560         nop                                             ; 0.5 us
+000290 0000           00561         nop                                             ; 0.5 us  --> Total High time = 1.5 us.  
+000292 9880           00562         bcf             SCLK_I2C                ; bring down slck low
+000294 0012           00563         return
+                      00564 
+000296                00565 Send_pulse_low_400KHz
+                      00566 
+                      00567 ;------------------------
+000296 9892           00568         bcf             SCL_dir
+000298 9A92           00569         bcf             SDA_dir
+                      00570 
+                      00571 ;------------------------
+00029A 9A80           00572         bcf             SDA_I2C                 ; 1 st pulse --> bring data line low during sclk is low
+00029C 0000           00573         nop
+00029E 0000           00574         nop
+0002A0 0000           00575         nop
+0002A2 8880           00576         bsf             SCLK_I2C                ; bring slck high
+0002A4 0000           00577         nop
+0002A6 0000           00578         nop
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 13
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0002A8 9880           00579         bcf             SCLK_I2C                ; bring down slck low
+0002AA 0012           00580         return
+                      00581 
+                      00582 
+                      00583 ;/*******************************************************************/
+                      00584 
+0002AC                00585 SendACK_400KHz
+                      00586 
+                      00587 ; -- trisate SDA pin to output ---> to send ACK pulse 
+0002AC 010F           00588         banksel PORTA   
+0002AE 9A80           00589         bcf             PORTA,5         ; SDA
+0002B0 9A89           00590         bcf             LATA,5          ; SDA
+                      00591 
+0002B2 9880           00592         bcf             PORTA,4         ; SCL
+0002B4 9889           00593         bcf             LATA,4          ; SCL
+                      00594 
+0002B6 9A92           00595         bcf             SDA_dir         ; SDA pin --> output
+0002B8 9A80           00596         bcf             SDA_I2C
+                      00597 
+0002BA 9889           00598         bcf             LATA,4          ; SCL
+0002BC 9A89           00599         bcf             LATA,5          ; SCL
+                      00600 ;--------------------------------------------------------
+                      00601 
+0002BE 9880           00602         bcf             SCLK_I2C                ; sclk
+0002C0 0000           00603         nop
+0002C2 9A80           00604         bcf             SDA_I2C
+0002C4 0000           00605         nop
+0002C6 8880           00606         bsf             SCLK_I2C                ; sclk
+0002C8 0000           00607         nop
+0002CA 0000           00608         nop
+0002CC 0000           00609         nop
+0002CE 9880           00610         bcf             SCLK_I2C                ; sclk
+                      00611 
+                      00612 ;---- Release SDA pin to input after sending ACK ---------
+                      00613 
+0002D0 010F           00614         banksel PORTA   
+0002D2 9A80           00615         bcf             PORTA,5         ; SDA
+0002D4 9A89           00616         bcf             LATA,5          ; SDA
+                      00617 
+0002D6 8A92           00618         bsf             SDA_dir         ; SDA pin --> input
+0002D8 8A92           00619         bsf             TRISA,5
+0002DA 9A80           00620         bcf             SDA_I2C
+0002DC 9A80           00621         bcf             PORTA,5         ; sda
+0002DE 9A89           00622         bcf             LATA,5          ; sda
+                      00623 
+                      00624 ;-----------------      
+0002E0 0000           00625         nop
+0002E2 0000           00626         nop
+0002E4 0000           00627         nop
+0002E6 0000           00628         nop
+0002E8 0000           00629         nop
+0002EA 0000           00630         nop
+                      00631 
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 14
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0002EC 0012           00632         return
+                      00633 
+                      00634 ;/******************************************************************/
+                      00635 
+0002EE                00636 Send_NotACK_400KHz
+                      00637 
+                      00638 ; -- trisate the PORTC SDA pin to output ----
+                      00639         
+0002EE 9A80           00640         bcf             PORTA,5         ; SDA
+0002F0 9A89           00641         bcf             LATA,5          ; SDA
+                      00642 
+0002F2 9880           00643         bcf             PORTA,4         ; SCL
+0002F4 9889           00644         bcf             LATA,4          ; SCL
+                      00645 
+0002F6 9A92           00646         bcf             SDA_dir         ; SDA pin --> output
+0002F8 9A80           00647         bcf             SDA_I2C
+                      00648 
+0002FA 9889           00649         bcf             LATA,4          ; SCL
+0002FC 9A89           00650         bcf             LATA,5          ; SCL
+                      00651 ;------------------------------------------------
+                      00652 
+0002FE 9880           00653         bcf             SCLK_I2C                ; sclk
+000300 0000           00654         nop
+000302 9A80           00655         bcf             SDA_I2C
+000304 0000           00656         nop
+000306 8880           00657         bsf             SCLK_I2C                ; sclk
+000308 0000           00658         nop
+00030A 0000           00659         nop
+00030C 0000           00660         nop
+00030E 8A80           00661         bsf             SDA_I2C
+000310 0000           00662         nop
+000312 0000           00663         nop
+000314 0000           00664         nop
+000316 9880           00665         bcf             SCLK_I2C                ; sclk
+                      00666 
+                      00667 ;---Release SDA to input after sending ACK ------
+                      00668 
+                      00669 
+000318 9A80           00670         bcf             PORTA,5         ; SDA
+00031A 9A89           00671         bcf             LATA,5          ; SDA
+                      00672 
+00031C 8A92           00673         bsf             SDA_dir         ; SDA pin --> input
+                      00674 
+00031E 9A80           00675         bcf             SDA_I2C
+000320 9A89           00676         bcf             LATA,5          ; scl
+000322 9A80           00677         bcf             PORTA,5         ; scl
+                      00678 ;------------------------------ 
+000324 0000           00679         nop
+000326 0000           00680         nop
+000328 0000           00681         nop
+00032A 0000           00682         nop
+00032C 0000           00683         nop
+00032E 0000           00684         nop
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 15
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00685 
+000330 0012           00686         return
+                      00687 
+                      00688 
+                      00689 ;/*********************************************************/
+                      00690 ;-------- Delay Loop for I2C ------------
+                      00691 ; 8 MHz --> Tcy = 2MHz --> 0.5 us 
+                      00692 ;----------------------------------------
+                      00693 
+000332                00694 delay_2_5us
+000332 0000           00695         nop
+000334 0000           00696         nop
+000336 0000           00697         nop
+000338 0000           00698         nop
+00033A 0000           00699         nop
+00033C 0012           00700         return
+                      00701 
+00033E                00702 delay_5us
+00033E 0000           00703         nop
+000340 0000           00704         nop
+000342 0000           00705         nop
+000344 0000           00706         nop
+000346 0000           00707         nop
+000348 0000           00708         nop
+00034A 0000           00709         nop
+00034C 0000           00710         nop
+00034E 0000           00711         nop
+000350 0000           00712         nop
+000352 0012           00713         return
+                      00714 
+                      00715 ;/**********************************************************/
+                      00716 
+                      00717 
+                      00718         end
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 16
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+A                                 00000000
+ABDEN                             00000000
+ABDOVF                            00000007
+ACCESS                            00000000
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ACK_Flag                          00000000
+ACQT0                             00000003
+ACQT1                             00000004
+ACQT2                             00000005
+ACTVIE                            00000002
+ACTVIF                            00000002
+ADCON0                            00000FC2
+ADCON1                            00000FC1
+ADCON2                            00000FC0
+ADCS0                             00000000
+ADCS1                             00000001
+ADCS2                             00000002
+ADC_Read_400KHz                   00000078
+ADC_Sign                          00000000
+ADC_Value1                        00000000
+ADC_Value2                        00000000
+ADC_Value3                        00000000
+ADC_Write_Config                  00000000
+ADDEN                             00000003
+ADDR0                             00000000
+ADDR1                             00000001
+ADDR2                             00000002
+ADDR3                             00000003
+ADDR4                             00000004
+ADDR5                             00000005
+ADDR6                             00000006
+ADEN                              00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADIP                              00000006
+ADON                              00000000
+ADRES                             00000FC3
+ADRESH                            00000FC4
+ADRESL                            00000FC3
+AN0                               00000000
+AN1                               00000001
+AN2                               00000002
+AN3                               00000003
+AN4                               00000005
+Address_bits_400KHz_read          00000084
+Address_bits_400KHz_write         00000004
+BANKED                            00000001
+BAUDCON                           00000FB8
+BCLIE                             00000003
+BCLIF                             00000003
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 17
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+BCLIP                             00000003
+BF                                00000000
+BGST                              00000005
+BOR                               00000000
+BRG16                             00000003
+BRGH                              00000002
+BSR                               00000FE0
+BTOEE                             00000004
+BTOEF                             00000004
+BTSEE                             00000007
+BTSEF                             00000007
+C                                 00000000
+C1INV                             00000004
+C1OUT                             00000006
+C2INV                             00000005
+C2OUT                             00000007
+CCP1                              00000002
+CCP1AS                            00000FB6
+CCP1CON                           00000FBD
+CCP1DEL                           00000FB7
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1IP                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP2CON                           00000FBA
+CCP2IE                            00000000
+CCP2IF                            00000000
+CCP2IP                            00000000
+CCP2M0                            00000000
+CCP2M1                            00000001
+CCP2M2                            00000002
+CCP2M3                            00000003
+CCPR1                             00000FBE
+CCPR1H                            00000FBF
+CCPR1L                            00000FBE
+CCPR2                             00000FBB
+CCPR2H                            00000FBC
+CCPR2L                            00000FBB
+CFGS                              00000006
+CHS0                              00000002
+CHS1                              00000003
+CHS2                              00000004
+CHS3                              00000005
+CIS                               00000003
+CK                                00000006
+CK1SPP                            00000000
+CK2SPP                            00000001
+CKE                               00000006
+CKP                               00000004
+CLK1EN                            00000004
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 18
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CLKCFG0                           00000006
+CLKCFG1                           00000007
+CM0                               00000000
+CM1                               00000001
+CM2                               00000002
+CMCON                             00000FB4
+CMIE                              00000006
+CMIF                              00000006
+CMIP                              00000006
+COUNT_Bits                        00000002
+COUNT_Byte                        00000003
+CRC16EE                           00000002
+CRC16EF                           00000002
+CRC5EE                            00000001
+CRC5EF                            00000001
+CREN                              00000004
+CSEN                              00000005
+CSRC                              00000007
+CVR0                              00000000
+CVR1                              00000001
+CVR2                              00000002
+CVR3                              00000003
+CVRCON                            00000FB5
+CVREF                             00000004
+CVREN                             00000007
+CVROE                             00000006
+CVRR                              00000005
+CVRSS                             00000004
+Conf_400KHz_Low                   0000005C
+Config_Data                       00000000
+D                                 00000005
+DATA_ADDRESS                      00000005
+DC                                00000001
+DC1B0                             00000004
+DC1B1                             00000005
+DC2B0                             00000004
+DC2B1                             00000005
+DDRA                              TRISA
+DDRB                              TRISB
+DDRC                              TRISC
+DDRD                              TRISD
+DDRE                              TRISE
+DELAYTIME                         .50
+DFN8EE                            00000003
+DFN8EF                            00000003
+DIR                               00000002
+DONE                              00000001
+D_A                               00000005
+ECCP1AS                           00000FB6
+ECCP1CON                          00000FBD
+ECCP1DEL                          00000FB7
+ECCPAS0                           00000004
+ECCPAS1                           00000005
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 19
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ECCPAS2                           00000006
+ECCPASE                           00000007
+EEADR                             00000FA9
+EECON1                            00000FA6
+EECON2                            00000FA7
+EEDATA                            00000FA8
+EEIE                              00000004
+EEIF                              00000004
+EEIP                              00000004
+EEPGD                             00000007
+ENDP0                             00000003
+ENDP1                             00000004
+ENDP2                             00000005
+ENDP3                             00000006
+EPCONDIS                          00000003
+EPHSHK                            00000004
+EPINEN                            00000001
+EPOUTEN                           00000002
+EPSTALL                           00000000
+FAST                              00000001
+FERR                              00000002
+FLTS                              00000002
+FREE                              00000004
+FRM0                              00000000
+FRM1                              00000001
+FRM10                             00000002
+FRM2                              00000002
+FRM3                              00000003
+FRM4                              00000004
+FRM5                              00000005
+FRM6                              00000006
+FRM7                              00000007
+FRM8                              00000000
+FRM9                              00000001
+FSEN                              00000002
+FSR0                              00000000
+FSR0H                             00000FEA
+FSR0L                             00000FE9
+FSR1                              00000001
+FSR1H                             00000FE2
+FSR1L                             00000FE1
+FSR2                              00000002
+FSR2H                             00000FDA
+FSR2L                             00000FD9
+Final_OneByte                     00000198
+Finish_Reading                    000001C6
+GCEN                              00000007
+GIE                               00000007
+GIEH                              00000007
+GIEL                              00000006
+GO                                00000001
+GO_DONE                           00000001
+Gain_Selected                     00000000
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 20
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+Give_8Clocks_400KHz               000000EC
+Give_8Clocks_Continue_1           00000136
+Give_8Clocks_Continue_2           00000162
+Give_Last8Clocks                  0000019E
+HLVDCON                           00000FD2
+HLVDEN                            00000004
+HLVDIE                            00000002
+HLVDIF                            00000002
+HLVDIN                            00000005
+HLVDIP                            00000002
+HLVDL0                            00000000
+HLVDL1                            00000001
+HLVDL2                            00000002
+HLVDL3                            00000003
+I2C_DAT                           00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+IDLEIE                            00000004
+IDLEIF                            00000004
+IDLEN                             00000007
+INDF0                             00000FEF
+INDF1                             00000FE7
+INDF2                             00000FDF
+INT0                              00000000
+INT0E                             00000004
+INT0F                             00000001
+INT0IE                            00000004
+INT0IF                            00000001
+INT1                              00000001
+INT1E                             00000003
+INT1F                             00000000
+INT1IE                            00000003
+INT1IF                            00000000
+INT1IP                            00000006
+INT1P                             00000006
+INT2                              00000002
+INT2E                             00000004
+INT2F                             00000001
+INT2IE                            00000004
+INT2IF                            00000001
+INT2IP                            00000007
+INT2P                             00000007
+INTCON                            00000FF2
+INTCON2                           00000FF1
+INTCON3                           00000FF0
+INTEDG0                           00000006
+INTEDG1                           00000005
+INTEDG2                           00000004
+INTSRC                            00000007
+IOFS                              00000002
+IPEN                              00000007
+IPR1                              00000F9F
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 21
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+IPR2                              00000FA2
+IRCF0                             00000004
+IRCF1                             00000005
+IRCF2                             00000006
+IRVST                             00000005
+IVRST                             00000005
+IsitForU5_Volt                    00000000
+ItsForU1_read                     000000AA
+ItsForU1_write                    0000002C
+JumpConf_400KHz                   00000060
+KeepContinue                      0000015C
+LATA                              00000F89
+LATA0                             00000000
+LATA1                             00000001
+LATA2                             00000002
+LATA3                             00000003
+LATA4                             00000004
+LATA5                             00000005
+LATA6                             00000006
+LATB                              00000F8A
+LATB0                             00000000
+LATB1                             00000001
+LATB2                             00000002
+LATB3                             00000003
+LATB4                             00000004
+LATB5                             00000005
+LATB6                             00000006
+LATB7                             00000007
+LATC                              00000F8B
+LATC0                             00000000
+LATC1                             00000001
+LATC2                             00000002
+LATC6                             00000006
+LATC7                             00000007
+LATD                              00000F8C
+LATD0                             00000000
+LATD1                             00000001
+LATD2                             00000002
+LATD3                             00000003
+LATD4                             00000004
+LATD5                             00000005
+LATD6                             00000006
+LATD7                             00000007
+LATE                              00000F8D
+LATE0                             00000000
+LATE1                             00000001
+LATE2                             00000002
+LVDCON                            00000FD2
+LVDEN                             00000004
+LVDIE                             00000002
+LVDIF                             00000002
+LVDIN                             00000005
+LVDIP                             00000002
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 22
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+LVDL0                             00000000
+LVDL1                             00000001
+LVDL2                             00000002
+LVDL3                             00000003
+LVV0                              00000000
+LVV1                              00000001
+LVV2                              00000002
+LVV3                              00000003
+LookingForACK_400KHz              000001D4
+N                                 00000004
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BOR                           00000000
+NOT_DONE                          00000001
+NOT_IPEN                          00000007
+NOT_PD                            00000002
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RI                            00000004
+NOT_T1SYNC                        00000002
+NOT_T3SYNC                        00000002
+NOT_TO                            00000003
+NOT_W                             00000002
+NOT_WRITE                         00000002
+OERR                              00000001
+OESPP                             00000002
+OSC2                              00000006
+OSCCON                            00000FD3
+OSCFIE                            00000007
+OSCFIF                            00000007
+OSCFIP                            00000007
+OSCTUNE                           00000F9B
+OSTS                              00000003
+OV                                00000003
+P                                 00000004
+P1A                               00000002
+P1M0                              00000006
+P1M1                              00000007
+PC                                00000FF9
+PCFG0                             00000000
+PCFG1                             00000001
+PCFG2                             00000002
+PCFG3                             00000003
+PCL                               00000FF9
+PCLATH                            00000FFA
+PCLATU                            00000FFB
+PD                                00000002
+PDC0                              00000000
+PDC1                              00000001
+PDC2                              00000002
+PDC3                              00000003
+PDC4                              00000004
+PDC5                              00000005
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 23
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PDC6                              00000006
+PEIE                              00000006
+PEN                               00000002
+PGC                               00000006
+PGD                               00000007
+PGM                               00000005
+PIDEE                             00000000
+PIDEF                             00000000
+PIE1                              00000F9D
+PIE2                              00000FA0
+PIR1                              00000F9E
+PIR2                              00000FA1
+PKTDIS                            00000004
+PLUSW0                            00000FEB
+PLUSW1                            00000FE3
+PLUSW2                            00000FDB
+POR                               00000001
+PORTA                             00000F80
+PORTB                             00000F81
+PORTC                             00000F82
+PORTD                             00000F83
+PORTE                             00000F84
+POSTDEC0                          00000FED
+POSTDEC1                          00000FE5
+POSTDEC2                          00000FDD
+POSTINC0                          00000FEE
+POSTINC1                          00000FE6
+POSTINC2                          00000FDE
+PPB0                              00000000
+PPB1                              00000001
+PPBI                              00000001
+PPBRST                            00000006
+PR2                               00000FCB
+PREINC0                           00000FEC
+PREINC1                           00000FE4
+PREINC2                           00000FDC
+PROD                              00000FF3
+PRODH                             00000FF4
+PRODL                             00000FF3
+PRSEN                             00000007
+PSA                               00000003
+PSSAC0                            00000002
+PSSAC1                            00000003
+PSSBD0                            00000000
+PSSBD1                            00000001
+R                                 00000002
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RA5                               00000005
+RA6                               00000006
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 24
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RB0                               00000000
+RB1                               00000001
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RBIE                              00000003
+RBIF                              00000000
+RBIP                              00000000
+RBPU                              00000007
+RC0                               00000000
+RC1                               00000001
+RC2                               00000002
+RC4                               00000004
+RC5                               00000005
+RC6                               00000006
+RC7                               00000007
+RCEN                              00000003
+RCIDL                             00000006
+RCIE                              00000005
+RCIF                              00000005
+RCIP                              00000005
+RCMT                              00000006
+RCON                              00000FD0
+RCREG                             00000FAE
+RCSTA                             00000FAB
+RD                                00000000
+RD0                               00000000
+RD1                               00000001
+RD16                              00000007
+RD2                               00000002
+RD3                               00000003
+RD4                               00000004
+RD5                               00000005
+RD6                               00000006
+RD7                               00000007
+RDPU                              00000007
+RDSPP                             00000007
+RE0                               00000000
+RE1                               00000001
+RE2                               00000002
+RE3                               00000003
+READ_WRITE                        00000002
+RESUME                            00000002
+RI                                00000004
+RSEN                              00000001
+RX                                00000007
+RX9                               00000006
+RX9D                              00000000
+R_W                               00000002
+Read_ADC_3blocks                  000000C0
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 25
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+Read_OneByte_400KHz               000000E6
+Read_ReadyBit_firstBit            0000012E
+Read_bit                          000000B2
+ReadyBitFlag                      00000001
+ReadyBit_Done                     00000158
+S                                 00000003
+SBOREN                            00000006
+SCKP                              00000004
+SCLK_I2C                          PORTA,4
+SCL_dir                           TRISA,4
+SCS0                              00000000
+SCS1                              00000001
+SDA_I2C                           PORTA,5
+SDA_dir                           TRISA,5
+SE0                               00000005
+SEN                               00000000
+SENDB                             00000003
+SMP                               00000007
+SOFIE                             00000006
+SOFIF                             00000006
+SPBRG                             00000FAF
+SPBRGH                            00000FB0
+SPEN                              00000007
+SPP0                              00000000
+SPP1                              00000001
+SPP2                              00000002
+SPP3                              00000003
+SPP4                              00000004
+SPP5                              00000005
+SPP6                              00000006
+SPP7                              00000007
+SPPBUSY                           00000004
+SPPCFG                            00000F63
+SPPCON                            00000F65
+SPPDATA                           00000F62
+SPPEN                             00000000
+SPPEPS                            00000F64
+SPPIE                             00000007
+SPPIF                             00000007
+SPPIP                             00000007
+SPPOWN                            00000001
+SREN                              00000005
+SSPADD                            00000FC8
+SSPBUF                            00000FC9
+SSPCON1                           00000FC6
+SSPCON2                           00000FC5
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPIP                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 26
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SSPM3                             00000003
+SSPOV                             00000006
+SSPSTAT                           00000FC7
+STALLIE                           00000005
+STALLIF                           00000005
+STATUS                            00000FD8
+STKFUL                            00000007
+STKPTR                            00000FFC
+STKPTR0                           00000000
+STKPTR1                           00000001
+STKPTR2                           00000002
+STKPTR3                           00000003
+STKPTR4                           00000004
+STKUNF                            00000006
+SUSPND                            00000001
+SWDTE                             00000000
+SWDTEN                            00000000
+SYNC                              00000004
+SendACK_400KHz                    000002AC
+Send_Config_400KHz                0000004A
+Send_NotACK_400KHz                000002EE
+Send_StopBit_400KHz               00000256
+Send_pulse_high_400KHz            00000280
+Send_pulse_low_400KHz             00000296
+Shift_Bits                        0000010C
+Start_bit_400KHz                  00000208
+Sync_LED11                        PORTD,6
+T08BIT                            00000006
+T0CKI                             00000004
+T0CON                             00000FD5
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0IP                              00000002
+T0PS0                             00000000
+T0PS1                             00000001
+T0PS2                             00000002
+T0SE                              00000004
+T13CKI                            00000000
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000FCD
+T1OSCEN                           00000003
+T1OSI                             00000001
+T1OSO                             00000000
+T1RUN                             00000006
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000FCA
+T2OUTPS0                          00000003
+T2OUTPS1                          00000004
+T2OUTPS2                          00000005
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 27
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+T2OUTPS3                          00000006
+T3CCP1                            00000003
+T3CCP2                            00000006
+T3CKPS0                           00000004
+T3CKPS1                           00000005
+T3CON                             00000FB1
+T3NSYNC                           00000002
+T3SYNC                            00000002
+TABLAT                            00000FF5
+TBLPTR                            00000FF6
+TBLPTRH                           00000FF7
+TBLPTRL                           00000FF6
+TBLPTRU                           00000FF8
+TMR0H                             00000FD7
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR0IP                            00000002
+TMR0L                             00000FD6
+TMR0ON                            00000007
+TMR1CS                            00000001
+TMR1H                             00000FCF
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1IP                            00000000
+TMR1L                             00000FCE
+TMR1ON                            00000000
+TMR2                              00000FCC
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2IP                            00000001
+TMR2ON                            00000002
+TMR3CS                            00000001
+TMR3H                             00000FB3
+TMR3IE                            00000001
+TMR3IF                            00000001
+TMR3IP                            00000001
+TMR3L                             00000FB2
+TMR3ON                            00000000
+TO                                00000003
+TOS                               00000FFD
+TOSH                              00000FFE
+TOSL                              00000FFD
+TOSU                              00000FFF
+TP16_LED12                        PORTD,7
+TP17_LED13                        PORTD,3
+TRISA                             00000F92
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISA5                            00000005
+TRISA6                            00000006
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 28
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TRISB                             00000F93
+TRISB0                            00000000
+TRISB1                            00000001
+TRISB2                            00000002
+TRISB3                            00000003
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+TRISC                             00000F94
+TRISC0                            00000000
+TRISC1                            00000001
+TRISC2                            00000002
+TRISC6                            00000006
+TRISC7                            00000007
+TRISD                             00000F95
+TRISD0                            00000000
+TRISD1                            00000001
+TRISD2                            00000002
+TRISD3                            00000003
+TRISD4                            00000004
+TRISD5                            00000005
+TRISD6                            00000006
+TRISD7                            00000007
+TRISE                             00000F96
+TRISE0                            00000000
+TRISE1                            00000001
+TRISE2                            00000002
+TRMT                              00000001
+TRNIE                             00000003
+TRNIF                             00000003
+TUN0                              00000000
+TUN1                              00000001
+TUN2                              00000002
+TUN3                              00000003
+TUN4                              00000004
+TX                                00000006
+TX9                               00000006
+TX9D                              00000000
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXIP                              00000004
+TXREG                             00000FAD
+TXSTA                             00000FAC
+Test_3Bytes                       00000104
+Test_SDA_Pin                      00000104
+UA                                00000001
+UADDR                             00000F6E
+UCFG                              00000F6F
+UCON                              00000F6D
+UEIE                              00000F6B
+UEIR                              00000F6A
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 29
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+UEP0                              00000F70
+UEP1                              00000F71
+UEP10                             00000F7A
+UEP11                             00000F7B
+UEP12                             00000F7C
+UEP13                             00000F7D
+UEP14                             00000F7E
+UEP15                             00000F7F
+UEP2                              00000F72
+UEP3                              00000F73
+UEP4                              00000F74
+UEP5                              00000F75
+UEP6                              00000F76
+UEP7                              00000F77
+UEP8                              00000F78
+UEP9                              00000F79
+UERRIE                            00000001
+UERRIF                            00000001
+UFRM                              00000F66
+UFRMH                             00000F67
+UFRML                             00000F66
+UIE                               00000F69
+UIR                               00000F68
+UOEMON                            00000006
+UPUEN                             00000004
+URSTIE                            00000000
+URSTIF                            00000000
+USBEN                             00000003
+USBIE                             00000005
+USBIF                             00000005
+USBIP                             00000005
+USTAT                             00000F6C
+UTEYE                             00000007
+UTRDIS                            00000003
+VCFG0                             00000004
+VCFG1                             00000005
+VDIRMAG                           00000007
+VREFM                             00000002
+VREFP                             00000003
+W                                 00000000
+WCOL                              00000007
+WDTCON                            00000FD1
+WR                                00000001
+WREG                              00000FE8
+WREN                              00000002
+WRERR                             00000003
+WRSPP                             00000006
+WS0                               00000000
+WS1                               00000001
+WS2                               00000002
+WS3                               00000003
+WUE                               00000001
+Write_bit                         00000034
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 30
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+Z                                 00000002
+_BORV_0_2L                        000000E7
+_BORV_1_2L                        000000EF
+_BORV_2_2L                        000000F7
+_BORV_3_2L                        000000FF
+_BOR_OFF_2L                       000000F9
+_BOR_ON_2L                        000000FF
+_BOR_ON_ACTIVE_2L                 000000FD
+_BOR_SOFT_2L                      000000FB
+_CCP2MX_OFF_3H                    000000FE
+_CCP2MX_ON_3H                     000000FF
+_CONFIG1H                         00300001
+_CONFIG1L                         00300000
+_CONFIG2H                         00300003
+_CONFIG2L                         00300002
+_CONFIG3H                         00300005
+_CONFIG4L                         00300006
+_CONFIG5H                         00300009
+_CONFIG5L                         00300008
+_CONFIG6H                         0030000B
+_CONFIG6L                         0030000A
+_CONFIG7H                         0030000D
+_CONFIG7L                         0030000C
+_CP0_OFF_5L                       000000FF
+_CP0_ON_5L                        000000FE
+_CP1_OFF_5L                       000000FF
+_CP1_ON_5L                        000000FD
+_CP2_OFF_5L                       000000FF
+_CP2_ON_5L                        000000FB
+_CP3_OFF_5L                       000000FF
+_CP3_ON_5L                        000000F7
+_CPB_OFF_5H                       000000FF
+_CPB_ON_5H                        000000BF
+_CPD_OFF_5H                       000000FF
+_CPD_ON_5H                        0000007F
+_CPUDIV_OSC1_PLL2_1L              000000E7
+_CPUDIV_OSC2_PLL3_1L              000000EF
+_CPUDIV_OSC3_PLL4_1L              000000F7
+_CPUDIV_OSC4_PLL6_1L              000000FF
+_DEBUG_OFF_4L                     000000FF
+_DEBUG_ON_4L                      0000007F
+_DEVID1                           003FFFFE
+_DEVID2                           003FFFFF
+_EBTR0_OFF_7L                     000000FF
+_EBTR0_ON_7L                      000000FE
+_EBTR1_OFF_7L                     000000FF
+_EBTR1_ON_7L                      000000FD
+_EBTR2_OFF_7L                     000000FF
+_EBTR2_ON_7L                      000000FB
+_EBTR3_OFF_7L                     000000FF
+_EBTR3_ON_7L                      000000F7
+_EBTRB_OFF_7H                     000000FF
+_EBTRB_ON_7H                      000000BF
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 31
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_FCMEN_OFF_1H                     000000BF
+_FCMEN_ON_1H                      000000FF
+_FOSC_ECIO_EC_1H                  000000F4
+_FOSC_ECPLLIO_EC_1H               000000F6
+_FOSC_ECPLL_EC_1H                 000000F7
+_FOSC_EC_EC_1H                    000000F5
+_FOSC_HSPLL_HS_1H                 000000FE
+_FOSC_HS_1H                       000000FC
+_FOSC_INTOSCIO_EC_1H              000000F8
+_FOSC_INTOSC_EC_1H                000000F9
+_FOSC_INTOSC_HS_1H                000000FB
+_FOSC_INTOSC_XT_1H                000000FA
+_FOSC_XTPLL_XT_1H                 000000F2
+_FOSC_XT_XT_1H                    000000F0
+_ICPRT_OFF_4L                     000000DF
+_ICPRT_ON_4L                      000000FF
+_IDLOC0                           00200000
+_IDLOC1                           00200001
+_IDLOC2                           00200002
+_IDLOC3                           00200003
+_IDLOC4                           00200004
+_IDLOC5                           00200005
+_IDLOC6                           00200006
+_IDLOC7                           00200007
+_IESO_OFF_1H                      0000007F
+_IESO_ON_1H                       000000FF
+_LPT1OSC_OFF_3H                   000000FB
+_LPT1OSC_ON_3H                    000000FF
+_LVP_OFF_4L                       000000FB
+_LVP_ON_4L                        000000FF
+_MCLRE_OFF_3H                     0000007F
+_MCLRE_ON_3H                      000000FF
+_PBADEN_OFF_3H                    000000FD
+_PBADEN_ON_3H                     000000FF
+_PLLDIV_10_1L                     000000FE
+_PLLDIV_12_1L                     000000FF
+_PLLDIV_1_1L                      000000F8
+_PLLDIV_2_1L                      000000F9
+_PLLDIV_3_1L                      000000FA
+_PLLDIV_4_1L                      000000FB
+_PLLDIV_5_1L                      000000FC
+_PLLDIV_6_1L                      000000FD
+_PWRT_OFF_2L                      000000FF
+_PWRT_ON_2L                       000000FE
+_STVREN_OFF_4L                    000000FE
+_STVREN_ON_4L                     000000FF
+_USBDIV_1_1L                      000000DF
+_USBDIV_2_1L                      000000FF
+_VREGEN_OFF_2L                    000000DF
+_VREGEN_ON_2L                     000000FF
+_WDTPS_1024_2H                    000000F5
+_WDTPS_128_2H                     000000EF
+_WDTPS_16384_2H                   000000FD
+MPASM  5.1                 FUELGAUGE_ADC.ASM   12-18-2007  18:09:27         PAGE 32
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_WDTPS_16_2H                      000000E9
+_WDTPS_1_2H                       000000E1
+_WDTPS_2048_2H                    000000F7
+_WDTPS_256_2H                     000000F1
+_WDTPS_2_2H                       000000E3
+_WDTPS_32768_2H                   000000FF
+_WDTPS_32_2H                      000000EB
+_WDTPS_4096_2H                    000000F9
+_WDTPS_4_2H                       000000E5
+_WDTPS_512_2H                     000000F3
+_WDTPS_64_2H                      000000ED
+_WDTPS_8192_2H                    000000FB
+_WDTPS_8_2H                       000000E7
+_WDT_OFF_2H                       000000FE
+_WDT_ON_2H                        000000FF
+_WRT0_OFF_6L                      000000FF
+_WRT0_ON_6L                       000000FE
+_WRT1_OFF_6L                      000000FF
+_WRT1_ON_6L                       000000FD
+_WRT2_OFF_6L                      000000FF
+_WRT2_ON_6L                       000000FB
+_WRT3_OFF_6L                      000000FF
+_WRT3_ON_6L                       000000F7
+_WRTB_OFF_6H                      000000FF
+_WRTB_ON_6H                       000000BF
+_WRTC_OFF_6H                      000000FF
+_WRTC_ON_6H                       000000DF
+_WRTD_OFF_6H                      000000FF
+_WRTD_ON_6H                       0000007F
+_XINST_OFF_4L                     000000BF
+_XINST_ON_4L                      000000FF
+__18F4550                         00000001
+delay_2_5us                       00000332
+delay_5us                         0000033E
+sw_1                              PORTC,7
+sw_1_dir                          TRISC,7
+sw_2                              PORTB,0
+sw_2_dir                          TRISB,0
+sw_3                              PORTB,1
+sw_3_dir                          TRISB,1
+sw_4                              PORTB,2
+sw_4_dir                          TRISB,2
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

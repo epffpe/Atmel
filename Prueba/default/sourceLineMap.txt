@@ -1,0 +1,16 @@
+Address = 0x00000038  File:line:col:begin = c:/winavr-20090313/lib/gcc/../../avr/include/util/delay_basic.h:105:0:-1
+Address = 0x00000044  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:9:0:-1
+Address = 0x00000046  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:7:0:-1
+Address = 0x0000004a  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:11:0:-1
+Address = 0x0000004c  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:14:0:-1
+Address = 0x0000004c  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:16:0:-1
+Address = 0x0000004e  File:line:col:begin = c:/winavr-20090313/lib/gcc/../../avr/include/util/delay_basic.h:105:0:-1
+Address = 0x00000052  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:18:0:-1
+Address = 0x00000058  File:line:col:begin = c:/winavr-20090313/lib/gcc/../../avr/include/util/delay_basic.h:105:0:-1
+Address = 0x0000005e  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:9:0:-1
+Address = 0x00000060  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:7:0:-1
+Address = 0x00000062  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:20:0:-1
+Address = 0x00000068  File:line:col:begin = c:/winavr-20090313/lib/gcc/../../avr/include/util/delay_basic.h:105:0:-1
+Address = 0x0000006e  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:9:0:-1
+Address = 0x00000070  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:7:0:-1
+Address = 0x00000074  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:7:0:-1

@@ -1,0 +1,15 @@
+Address = 0x0000006c  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../PruebasC.c:17:0:-1
+Address = 0x00000076  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../PruebasC.c:22:0:-1
+Address = 0x0000007e  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../PruebasC.c:27:0:-1
+Address = 0x00000082  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../PruebasC.c:28:0:-1
+Address = 0x00000086  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../PruebasC.c:29:0:-1
+Address = 0x00000088  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../PruebasC.c:31:0:-1
+Address = 0x00000096  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../PruebasC.c:33:0:-1
+Address = 0x000000ac  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../PruebasC.c:34:0:-1
+Address = 0x000000b8  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../PruebasC.c:11:0:-1
+Address = 0x000000da  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../PruebasC.c:12:0:-1
+Address = 0x000000e8  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../PruebasC.c:13:0:-1
+Address = 0x0000010e  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../PruebasC.c:14:0:-1
+Address = 0x00000130  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../funciones.c:3:0:-1
+Address = 0x0000013e  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../funciones.c:5:0:-1
+Address = 0x00000142  File:line:col:begin = D:\Designs\Atmel\PruebasC\default/../funciones.c:5:0:-1

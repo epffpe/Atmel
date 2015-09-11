@@ -1,0 +1,13 @@
+Address = 0x0000006c  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:11:0:-1
+Address = 0x00000070  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:12:0:-1
+Address = 0x00000074  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:13:0:-1
+Address = 0x00000078  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:14:0:-1
+Address = 0x00000080  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:15:0:-1
+Address = 0x00000084  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:17:0:-1
+Address = 0x0000008c  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:23:0:-1
+Address = 0x00000090  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:24:0:-1
+Address = 0x00000096  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:28:0:-1
+Address = 0x000000a0  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:35:0:-1
+Address = 0x000000ac  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:36:0:-1
+Address = 0x000000b2  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:38:0:-1
+Address = 0x000000b8  File:line:col:begin = D:\Designs\Atmel\Prueba\default/../Prueba.c:38:0:-1

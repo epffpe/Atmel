@@ -1,0 +1,1940 @@
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;************************************************************************
+                      00002 ;*      Microchip Technology Inc. 2007
+                      00003 ;*      Assembler version: 1.0
+                      00004 ;*      Filename:
+                      00005 ;*              FuelGauge_MathLib.asm
+                      00006 
+                      00007 ;/****** 48 bit unsigned substraction **********************************/
+                      00008 ;------------------------------------------------------------------------
+                      00009 ; SubtractByteA - SubtractByteB = SubtractByteA 
+                      00010 ; This routin can be easly modified for 8 / 16 / 32 / 64 bits
+                      00011 ; Modifed by Youbok for A(6 bytes) - B (6 bytes) = A (6 bytes)
+                      00012 ;  Carry  = 0: Success --> A > B or A == B
+                      00013 ;  Carry  = 1: Fail --->  A < B
+                      00014 ; SubtractByteA+5 --> MSB
+                      00015 ; SubtractByteA --> LSB
+                      00016 
+                      00017 
+                      00018 ;-------------------------------------------------------------------------
+                      00019 ;       Ver 1.0
+                      00020 ;       Date: 7-28-2007
+                      00021 ;               AIPD
+                      00022 ;               Microchip Technology Inc 
+                      00023 ;
+                      00024 ;------------------------------------------------------------------------
+                      00025 ;************************************************************************
+                      00026 ;               LEGAL NOTICE
+                      00027 ;
+                      00028 ;  The information contained in this document is proprietary and 
+                      00029 ;  confidential information of Microchip Technology Inc.  Therefore all 
+                      00030 ;  parties are required to sign a non-disclosure agreement before  
+                      00031 ;  receiving this document.
+                      00032 ;
+                      00033 ;  The information contained in this Application Note is for suggestion 
+                      00034 ;  only.  It is your responsibility to ensure that your application meets 
+                      00035 ;  with your specifications.  No representation or warranty is given and 
+                      00036 ;  no liability is assumed by Microchip Technology Incorporated with 
+                      00037 ;  respect to the accuracy or use of such information or infringement of 
+                      00038 ;  patents or other intellectual property arising from such use or 
+                      00039 ;  otherwise.
+                      00040 ;
+                      00041 ;                Software License Agreement
+                      00042 ;
+                      00043 ; The software supplied herewith by Microchip Technology Incorporated 
+                      00044 ; (the "Company") for its PICmicro® Microcontroller is intended and 
+                      00045 ; supplied to you, the Company's customer, for use solely and 
+                      00046 ; exclusively on Microchip PICmicro Microcontroller products. The 
+                      00047 ; software is owned by the Company and/or its supplier, and is 
+                      00048 ; protected under applicable copyright laws. All rights are reserved. 
+                      00049 ;  Any use in violation of the foregoing restrictions may subject the 
+                      00050 ; user to criminal sanctions under applicable laws, as well as to 
+                      00051 ; civil liability for the breach of the terms and conditions of this 
+                      00052 ; license.
+                      00053 ;
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00054 ; THIS SOFTWARE IS PROVIDED IN AN "AS IS" CONDITION. NO WARRANTIES, 
+                      00055 ; WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED 
+                      00056 ; TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A 
+                      00057 ; PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT, 
+                      00058 ; IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR 
+                      00059 ; CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+                      00060 
+                      00061 
+                      00062 ;************************************************************************
+                      00063 
+                      00064 ;------------------------------------------------------------------------
+                      00065 ;*      03/15/07
+                      00066 ;************************************************************************
+                      00067 
+                      00068         list            p=18f4550
+                      00069         #include        <p18f4550.inc>
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ;  $Id: P18F4550.INC,v 1.10 2006/10/25 17:47:56 nairnj Exp $
+                      00005 ;  MPASM PIC18F4550 processor include
+                      00006 ; 
+                      00007 ;  (c) Copyright 1999-2006 Microchip Technology, All rights reserved
+                      00008 ;==========================================================================
+                      00009 
+                      01642         LIST
+                      00070         #include        FuelGauge_Project.inc
+                      00001 ;/****************************************/
+                      00002 ;/*  File Name: FuelGauge_Project.inc
+                      00003 ;/***************************************/
+                      00004 
+                      00005 
+                      00006 #define sw_1_dir        TRISC,7                 ;Scroll Push-button switch S1, RRC7 on PCB
+                      00007 #define sw_1            PORTC,7
+                      00008 
+                      00009 #define sw_2_dir        TRISB,0                 ;Select Push-button switch S2, RB0 on PCB
+                      00010 #define sw_2            PORTB,0
+                      00011 
+                      00012 #define sw_3_dir        TRISB,1                 ;Select Push-button switch S3, RB1 on PCB
+                      00013 #define sw_3            PORTB,1
+                      00014 
+                      00015 #define sw_4_dir        TRISB,2                 ;Select Push-button switch S3, RB1 on PCB
+                      00016 #define sw_4            PORTB,2
+                      00017 
+                      00018 
+                      00019 
+                      00020 #define SCL_dir         TRISA,4                 ; I2C SCL & SDA ...
+                      00021 #define SCLK_I2C        PORTA,4
+                      00022 #define SDA_dir         TRISA,5
+                      00023 #define SDA_I2C         PORTA,5
+                      00024 
+                      00025 
+                      00026 ; define test points
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00027 #define Sync_LED11      PORTD,6
+                      00028 #define TP16_LED12      PORTD,7
+                      00029 #define TP17_LED13      PORTD,3
+                      00030 
+                      00031 
+                      00032 
+                      00033 #define         DELAYTIME       .50                     ;Debounce Delay Constant ~10ms
+                      00034 
+                      00071         #include        FuelGauge_MathLib.inc
+                      00001 ;/****************************************/
+                      00002 ;/*  File Name: FuelGaugeD_MathLib.inc
+                      00003 ;/***************************************/
+                      00004 
+  0000                00005         global  SubtractByteA, SubtractByteB
+  0000                00006         global  Subtract_6Bytes_6Bytes 
+  0000                00007         global  Multiply_24x24Bits_ADC, Multiply_3x3bytes
+  0000                00008         global  Divide_6by_3Bytes
+  0000                00009         global  Add_Two_6Bytes
+                      00010 
+                      00011 
+                      00012 ;/**** The following variables are used in the "MULTIPLY_24x24Bits_ADC" 
+                      00013 ;/***** and Multiply_3x3bytes ***************************************/
+  0000                00014         extern  Multiplier1,Multiplier2,Multiplier3
+  0000                00015         extern  Product1, Product2, Product3, Product4, Product5,Product6
+  0000                00016         extern  Multipland1, Multipland2, Multipland3
+  0000                00017         extern  IsitForU5_Volt, Gain_Selected
+                      00018 
+                      00019 ;/**** The following variables are used in the "Divide_6by_3Bytes" *********/
+                      00020 
+  0000                00021         extern  Dividend1, Dividend2, Dividend3,Dividend4,Dividend5,Dividend6
+  0000                00022         extern  Divisor1, Divisor2, Divisor3
+                      00023 
+                      00024 ;/**** The following variables are used in the "Add_Two_6Bytes" *********/
+  0000                00025         extern  Carry_fromAdd
+  0000                00026         extern  AddByteA, AddByteB
+                      00072 
+                      00073 
+                      00074 #define         _C      STATUS,0
+                      00075 
+                      00076         errorlevel      -302
+                      00077 
+                      00078 
+                      00079 ;/-----------------------------------------------------/
+                      00080 ;/* Following vars are used in Subtraction routine. 
+                      00081 
+                      00082 MATH_VAR        UDATA
+000000                00083 SubtractByteA   res 6
+000006                00084 SubtractByteB   res 6
+                      00085 
+                      00086 
+                      00087 ;/* Following vars are used in Multiplication routine. 
+                      00088 
+00000C                00089 BitCount        res 1
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00090 
+                      00091 ;/* Following vars are used in Division routine. 
+                      00092 
+00000D                00093 Shift1          res 1
+00000E                00094 Shift2          res 1
+00000F                00095 Shift3          res 1
+000010                00096 Shift4          res 1
+000011                00097 Shift5          res 1
+000012                00098 Shift6          res 1
+                      00099 
+000013                00100 Rem1            res 1
+000014                00101 Rem2            res 1
+000015                00102 Rem3            res 1
+000016                00103 Count           res 1
+                      00104 
+                      00105 
+                      00106 ;/*------------------------------------------------------------------*/
+                      00107 
+                      00108         
+                      00109 
+                      00110 ;LCDMath_CODE   code
+                      00111 
+                      00112         code
+                      00113 
+                      00114 ;/*********************************************************************/
+000000                00115 Subtract_6Bytes_6Bytes   
+000000 010?           00116         banksel SubtractByteA
+000002 90D8           00117         bcf             STATUS,C        ; clear our routine return flag 
+                      00118 ;       movf    Current_Used,W          ; substract first LSB bytes
+000004 50??           00119         movf    SubtractByteB,W         ; substract first LSB bytes
+000006 5E??           00120     subwf   SubtractByteA,F     ; a1 - b1 --&gt; a1
+                      00121                                                 ; a > b --&gt; c=1
+                      00122                                                 ; a = b --&gt; c=1
+                      00123                                                 ; a < b --&gt; c=0 we have BORROW
+000008 B0D8           00124         btfsc   STATUS,C        ; have BORROW ?
+00000A EF?? F???      00125         goto    NO_BORROW1      ; 1 NO
+                      00126                                                 ; 0 YES, so substract 1 from the next LSB
+00000E 0E01           00127         movlw   .1
+000010 5E??           00128         subwf   SubtractByteA+1,F
+000012 B0D8           00129         btfsc   STATUS,C        ; have also BORROW here ?
+000014 EF?? F???      00130         goto    NO_BORROW1      ; 1
+                      00131                                                 ; 0 YES, so substract more, 1 from next
+000018 0E01           00132         movlw   .1
+00001A 5E??           00133         subwf   SubtractByteA+2,F
+00001C B0D8           00134         btfsc   STATUS,C        ; still BORROW ?
+00001E EF?? F???      00135         goto    NO_BORROW1      ; 1
+                      00136                                                 ; 0 YES, substract 1 from the last
+                      00137 
+                      00138 ; added
+000022 0E01           00139         movlw   .1
+000024 5E??           00140         subwf   SubtractByteA+3,F
+000026 B0D8           00141         btfsc   STATUS,C        ; still BORROW ?
+000028 EF?? F???      00142         goto    NO_BORROW1      ; 1
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00143                                                 ; 0 YES, substract 1 from the last
+                      00144 
+00002C 0E01           00145         movlw   .1
+00002E 5E??           00146         subwf   SubtractByteA+4,F
+000030 B0D8           00147         btfsc   STATUS,C        ; still BORROW ?
+000032 EF?? F???      00148         goto    NO_BORROW1      ; 1
+                      00149                                                 ; 0 YES, substract 1 from the last
+                      00150 
+                      00151 ;------------------
+000036 0E01           00152         movlw   .1
+000038 5E??           00153         subwf   SubtractByteA+5,F               
+                      00154 
+00003A B0D8           00155         btfsc   STATUS,C        
+00003C EF?? F???      00156         goto    NO_BORROW1
+000040 80D8           00157         bsf             STATUS,C        ; if another BORROW, the substraction result is negative
+                      00158                                                 ; so return quick with CARRY = 1
+000042 0012           00159         return
+                      00160 
+                      00161 
+000044                00162 NO_BORROW1
+                      00163 
+                      00164 ;       movf    Current_Used+1,w        ; the same manner ...   
+000044 50??           00165         movf    SubtractByteB+1,w       ; the same manner ...   
+                      00166  
+000046 5E??           00167     subwf   SubtractByteA+1,f           
+000048 B0D8           00168         btfsc   STATUS,C        
+00004A EF?? F???      00169         goto    NO_BORROW2      
+                      00170 
+00004E 0E01           00171         movlw   .1
+000050 5E??           00172         subwf   SubtractByteA+2,F
+000052 B0D8           00173         btfsc   STATUS,C        
+000054 EF?? F???      00174         goto    NO_BORROW2      
+                      00175 
+000058 0E01           00176         movlw   .1
+00005A 5E??           00177         subwf   SubtractByteA+3,F
+00005C B0D8           00178         btfsc   STATUS,C        
+00005E EF?? F???      00179         goto    NO_BORROW2      
+                      00180 
+000062 0E01           00181         movlw   .1
+000064 5E??           00182         subwf   SubtractByteA+4,F
+000066 B0D8           00183         btfsc   STATUS,C        
+000068 EF?? F???      00184         goto    NO_BORROW2      
+                      00185 
+                      00186 
+00006C 0E01           00187         movlw   .1
+00006E 5E??           00188         subwf   SubtractByteA+5,F               
+000070 B0D8           00189         btfsc   STATUS,C        
+000072 EF?? F???      00190         goto    NO_BORROW2
+000076 80D8           00191         bsf             STATUS,C        
+000078 0012           00192         return
+                      00193 
+                      00194 
+00007A                00195 NO_BORROW2
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00196 ;       movf    Current_Used+2,w        
+00007A 50??           00197         movf    SubtractByteB+2,w       
+                      00198 
+00007C 5E??           00199     subwf   SubtractByteA+2,f           
+00007E B0D8           00200         btfsc   STATUS,C        
+000080 EF?? F???      00201         goto    NO_BORROW3      
+                      00202 
+000084 0E01           00203         movlw   .1
+000086 5E??           00204         subwf   SubtractByteA+3,F
+000088 B0D8           00205         btfsc   STATUS,C
+00008A EF?? F???      00206         goto    NO_BORROW3
+                      00207 
+00008E 0E01           00208         movlw   .1
+000090 5E??           00209         subwf   SubtractByteA+4,F
+000092 B0D8           00210         btfsc   STATUS,C
+000094 EF?? F???      00211         goto    NO_BORROW3
+                      00212 
+                      00213 
+000098 0E01           00214         movlw   .1
+00009A 5E??           00215         subwf   SubtractByteA+5,F
+00009C B0D8           00216         btfsc   STATUS,C
+00009E EF?? F???      00217         goto    NO_BORROW3
+0000A2 80D8           00218         bsf             STATUS,C
+                      00219 
+0000A4 0012           00220         return
+                      00221 
+0000A6                00222 NO_BORROW3
+                      00223 ;       movf    Current_Used+3,w    
+0000A6 50??           00224         movf    SubtractByteB+3,w    
+                      00225 
+0000A8 5E??           00226     subwf   SubtractByteA+3,f    
+0000AA B0D8           00227         btfsc   STATUS,C
+0000AC EF?? F???      00228         goto    NO_BORROW4
+                      00229 
+0000B0 0E01           00230         movlw   .1
+0000B2 5E??           00231         subwf   SubtractByteA+4,F
+0000B4 B0D8           00232         btfsc   STATUS,C
+0000B6 EF?? F???      00233         goto    NO_BORROW4
+                      00234 
+0000BA 0E01           00235         movlw   .1
+0000BC 5E??           00236         subwf   SubtractByteA+5,F
+0000BE B0D8           00237         btfsc   STATUS,C
+0000C0 EF?? F???      00238         goto    NO_BORROW4
+0000C4 80D8           00239         bsf             STATUS,C
+0000C6 0012           00240         return
+                      00241 
+0000C8                00242 NO_BORROW4
+                      00243 ;       movf    Current_Used+4,w
+0000C8 50??           00244         movf    SubtractByteB+4,w    
+                      00245     
+0000CA 5E??           00246     subwf   SubtractByteA+4,f    
+0000CC B0D8           00247         btfsc   STATUS,C
+0000CE EF?? F???      00248         goto    NO_BORROW5
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00249 
+0000D2 0E01           00250         movlw   .1
+0000D4 5E??           00251         subwf   SubtractByteA+5,F
+0000D6 B0D8           00252         btfsc   STATUS,C
+0000D8 EF?? F???      00253         goto    NO_BORROW5
+0000DC 80D8           00254         bsf             STATUS,C
+0000DE 0012           00255         return
+                      00256 
+0000E0                00257 NO_BORROW5
+                      00258 ;       movf    Current_Used+5,w
+0000E0 50??           00259         movf    SubtractByteB+5,w    
+                      00260     
+0000E2 5E??           00261     subwf   SubtractByteA+5,f    
+0000E4 B0D8           00262         btfsc   STATUS,C
+0000E6 EF?? F???      00263         goto    NO_BORROW6
+0000EA 80D8           00264         bsf             STATUS,C
+0000EC 0012           00265         return
+                      00266 
+0000EE                00267 NO_BORROW6
+0000EE 90D8           00268         bcf             STATUS,C
+0000F0 0012           00269         return
+                      00270 ;/**************************************************************************/
+                      00271 
+                      00272 ;/**************************************************************************/
+0000F2                00273 Multiply_24x24Bits_ADC
+                      00274 
+                      00275 ;--------------------------------------------------------------------------
+                      00276 ;       24 bits x 24 bits multiplication using PIC18F4550
+                      00277 ;       This routin multiplies the ADC code by LSB. 
+                      00278 ;       The result of this multiplication is an input amplitude.
+                      00279 ; 
+                      00280 ;       Results: 
+                      00281 ;                       Product1 + Product2 + Product3 + Product4 + Product5 + Product6  
+                      00282 ;                       for 18 bit MCP3421, Product1 and Product2 registers have all 0's.
+                      00283 ;                       So, it needds to take care of Product3 - 4 - 5 - 6 only. 
+                      00284 ;
+                      00285 ;       Multiplicand:
+                      00286 ;                               Multipland1 + Multipland2 + Multipland3
+                      00287 ;       Multiplier:
+                      00288 ;                               Multiplier1 + Multiplier2 + Multiplier3
+                      00289 ;
+                      00290 ;        BitCount:24
+                      00291 ;       
+                      00292 ; Note: This routin is also contain "Multiply_3x3bytes". 
+                      00293 ;          to   multiply with pre-given 3 bytes x 3 bytes variables
+                      00294 ; 
+                      00295 ;               3-21-2007, Youbok Lee
+                      00296 ;----------------------------------------------------
+                      00297 
+                      00298 ;---------------------------------------------------------------------------------------------
+                      00299 
+                      00300 
+                      00301 
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00302 ; preload values to test
+                      00303 
+                      00304 ; Multiplicand used for testing
+                      00305 ;       banksel Multipland1
+                      00306 ;       MOVLW   0x01
+                      00307 ;       MOVWF   Multipland1
+                      00308 ;       MOVLW   0xFF
+                      00309 ;       MOVWF   Multipland2
+                      00310 ;       MOVLW   0xFF
+                      00311 ;       MOVWF   Multipland3
+                      00312 ;
+                      00313 
+0000F2 010?           00314         banksel Gain_Selected
+0000F4 B0??           00315         btfsc   Gain_Selected,0
+0000F6 EF?? F???      00316         goto    Its_Gain_2
+0000FA B2??           00317         btfsc   Gain_Selected,1
+0000FC EF?? F???      00318         goto    Its_Gain_4
+000100 B4??           00319         btfsc   Gain_Selected,2
+000102 EF?? F???      00320         goto    Its_Gain_8
+                      00321 
+000106                00322 Its_Gain_1
+                      00323 
+000106 010?           00324         banksel IsitForU5_Volt
+000108 A0??           00325         btfss   IsitForU5_Volt,0                ; for battery voltage--> LSB x2 because the circuit uses
+                             a voltage divider
+00010A D???           00326         bra             NotScaledBy2_G1
+                      00327 
+00010C                00328 U5_x2Voltage_G1
+00010C 010?           00329         banksel Multiplier1                                             ; 003d09h = 15625 in Decimal -->
+                             15625 x 10^-9 V
+00010E 0E00           00330         MOVLW   0x00                                                    ; 15625 x2 = 7A12h
+000110 6E??           00331         MOVWF   Multiplier1
+000112 0E7A           00332         MOVLW   0x7A
+000114 6E??           00333         MOVWF   Multiplier2
+000116 0E12           00334         MOVLW   0x12
+000118 6E??           00335         MOVWF   Multiplier3
+00011A D???           00336         bra             Start_Multiply
+                      00337 
+00011C                00338 NotScaledBy2_G1
+00011C 010?           00339         banksel Multiplier1                                             ; 003d09h = 15625 in Decimal -->
+                             15625 x 10^-9 V
+00011E 0E00           00340         MOVLW   0x00
+000120 6E??           00341         MOVWF   Multiplier1
+000122 0E3D           00342         MOVLW   0x3D
+000124 6E??           00343         MOVWF   Multiplier2
+000126 0E09           00344         MOVLW   0x09
+000128 6E??           00345         MOVWF   Multiplier3
+00012A D???           00346         bra             Start_Multiply
+                      00347 
+                      00348 
+00012C                00349 Its_Gain_2
+00012C 010?           00350         banksel IsitForU5_Volt
+00012E A0??           00351         btfss   IsitForU5_Volt,0                ; for battery voltage--> LSB x2 because the circuit uses
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                             a voltage divider
+000130 D???           00352         bra             NotScaledBy2_G2
+                      00353 
+000132                00354 U5_x2Voltage_G2
+000132 010?           00355         banksel Multiplier1                                             ; LSB/2 = 7.8125 uV in Decimal -
+                            -> 78125 x 10^-10 V
+000134 0E02           00356         MOVLW   0x02                                                    ; 01312Dh x 2 = 02625Ah
+000136 6E??           00357         MOVWF   Multiplier1
+000138 0E62           00358         MOVLW   0x62
+00013A 6E??           00359         MOVWF   Multiplier2
+00013C 0E5A           00360         MOVLW   0x5A
+00013E 6E??           00361         MOVWF   Multiplier3
+000140 D???           00362         bra             Start_Multiply
+                      00363 
+000142                00364 NotScaledBy2_G2
+000142 010?           00365         banksel Multiplier1                                             ; LSB/2 = 7.8125 uV in Decimal -
+                            -> 78125 x 10^-10 V
+000144 0E01           00366         MOVLW   0x01
+000146 6E??           00367         MOVWF   Multiplier1
+000148 0E31           00368         MOVLW   0x31
+00014A 6E??           00369         MOVWF   Multiplier2
+00014C 0E2D           00370         MOVLW   0x2D
+00014E 6E??           00371         MOVWF   Multiplier3
+000150 D???           00372         bra             Start_Multiply
+                      00373 
+                      00374 
+000152                00375 Its_Gain_4
+000152 010?           00376         banksel IsitForU5_Volt
+000154 A0??           00377         btfss   IsitForU5_Volt,0                ; for battery voltage--> LSB x2 because the circuit uses
+                             a voltage divider
+000156 D???           00378         bra             NotScaledBy2_G4
+                      00379 
+000158                00380 U5_x2Voltage_G4
+                      00381 
+000158 010?           00382         banksel Multiplier1                                             ; LSB/4 = 3.90625 uV in Decimal 
+                            --> 390625 x 10^-11 V
+00015A 0E0B           00383         MOVLW   0x0B                                                    ; 05F5E1h x 2 = 05EBC2h
+00015C 6E??           00384         MOVWF   Multiplier1
+00015E 0EEB           00385         MOVLW   0xEB
+000160 6E??           00386         MOVWF   Multiplier2
+000162 0EC2           00387         MOVLW   0xC2
+000164 6E??           00388         MOVWF   Multiplier3
+000166 D???           00389         bra             Start_Multiply
+                      00390 
+000168                00391 NotScaledBy2_G4
+                      00392 
+                      00393 
+000168 010?           00394         banksel Multiplier1                                             ; LSB/4 = 3.90625 uV in Decimal 
+                            --> 390625 x 10^-11 V
+00016A 0E05           00395         MOVLW   0x05
+00016C 6E??           00396         MOVWF   Multiplier1
+00016E 0EF5           00397         MOVLW   0xF5
+000170 6E??           00398         MOVWF   Multiplier2
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000172 0EE1           00399         MOVLW   0xE1
+000174 6E??           00400         MOVWF   Multiplier3
+000176 D???           00401         bra             Start_Multiply
+                      00402 
+000178                00403 Its_Gain_8
+000178 010?           00404         banksel IsitForU5_Volt
+00017A A0??           00405         btfss   IsitForU5_Volt,0                ; for battery voltage--> LSB x2 because the circuit uses
+                             a voltage divider
+00017C D???           00406         bra             NotScaledBy2_G8
+                      00407 
+00017E                00408 U5_x2Voltage_G8
+00017E 010?           00409         banksel Multiplier1                                             ; LSB/8 = 1.953125 uV in Decimal
+                             --> 1953125 x 10^-12 V
+000180 0E3B           00410         MOVLW   0x3B                                                    ; 1DCD65h x 2 = 3B9ACAh
+000182 6E??           00411         MOVWF   Multiplier1
+000184 0E9A           00412         MOVLW   0x9A
+000186 6E??           00413         MOVWF   Multiplier2
+000188 0ECA           00414         MOVLW   0xCA
+00018A 6E??           00415         MOVWF   Multiplier3
+00018C D???           00416         bra             Start_Multiply
+                      00417 
+                      00418 
+00018E                00419 NotScaledBy2_G8
+00018E 010?           00420         banksel Multiplier1                                             ; LSB/8 = 1.953125 uV in Decimal
+                             --> 1953125 x 10^-12 V
+000190 0E1D           00421         MOVLW   0x1D
+000192 6E??           00422         MOVWF   Multiplier1
+000194 0ECD           00423         MOVLW   0xCD
+000196 6E??           00424         MOVWF   Multiplier2
+000198 0E65           00425         MOVLW   0x65
+00019A 6E??           00426         MOVWF   Multiplier3
+00019C D???           00427         bra             Start_Multiply
+                      00428 
+                      00429 ;*/***************************************************************/
+                      00430 
+00019E                00431 Multiply_3x3bytes                       ; Multiplying routine with pre-defined 3 bytes x 3 bytes varaibl
+                            es
+                      00432 
+                      00433 
+00019E                00434 Start_Multiply
+                      00435 
+00019E 010?           00436         banksel Product1
+0001A0 6A??           00437         CLRF    Product1         ; clear destination
+0001A2 6A??           00438         CLRF    Product2
+0001A4 6A??           00439         CLRF    Product3
+0001A6 6A??           00440         CLRF    Product4         ; clear destination
+0001A8 6A??           00441         CLRF    Product5
+0001AA 6A??           00442         CLRF    Product6
+                      00443 
+                      00444         
+0001AC 010?           00445         banksel BitCount
+0001AE 0E18           00446         MOVLW   D'24'
+0001B0 6E??           00447         MOVWF   BitCount        ; number of bits
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 11
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00448 
+                      00449 
+                      00450 
+0001B2 010?           00451         banksel Multiplier1
+0001B4 32??           00452         RRCF    Multiplier1,F     ; shift out to carry
+0001B6 32??           00453         RRCF    Multiplier2,F     ; next multiplier bit
+0001B8 32??           00454         RRCF    Multiplier3,F
+                      00455 
+0001BA                00456 ADD_LOOP_24x24
+                      00457 
+0001BA A0D8           00458         BTFSS   STATUS,C        ; if carry is set we must add multipland
+                      00459                                 ; to the product
+0001BC EF?? F???      00460         GOTO    SKIP_LOOP_24x24 ; nope, skip this bit
+                      00461             
+0001C0 010?           00462         banksel Multipland3  
+0001C2 50??           00463         MOVF    Multipland3,W  ; get LSB of multiplicand
+0001C4 26??           00464         ADDWF   Product3,F     ; add it to the lsb of the product
+                      00465   
+0001C6 50??           00466         MOVF    Multipland2,W  ; middle byte
+0001C8 B0D8           00467         BTFSC   STATUS,C        ; check carry for overflow
+0001CA 3C??           00468         INCFSZ  Multipland2,W  ; if carry set we add one to the source 
+0001CC 26??           00469         ADDWF   Product2,F     ; and add it  (if not zero, in
+                      00470                            ; that case mulitpland = 0xff->0x00 )
+                      00471         
+0001CE 50??           00472         MOVF    Multipland1,W    ; MSB byte
+0001D0 B0D8           00473         BTFSC   STATUS,C        ; check carry
+0001D2 3C??           00474         INCFSZ  Multipland1,W
+0001D4 010?           00475         banksel Product1
+0001D6 26??           00476         ADDWF   Product1,F       ; handle overflow
+                      00477 
+0001D8                00478 SKIP_LOOP_24x24
+                      00479         ; note carry contains most significant bit of
+                      00480         ; addition here
+                      00481 
+                      00482         ; shift in carry and shift out
+                      00483         ; next multiplier bit, starting from less
+                      00484         ; significant bit
+                      00485 
+0001D8 010?           00486         banksel Product1
+0001DA 32??           00487         RRCF     Product1,F
+0001DC 32??           00488         RRCF     Product2,F
+0001DE 32??           00489         RRCF     Product3,F
+                      00490 
+0001E0 010?           00491         banksel  Multiplier1
+0001E2 32??           00492         RRCF     Multiplier1,F     ; shift out to carry
+0001E4 32??           00493         RRCF     Multiplier2,F     ; next multiplier bit
+0001E6 32??           00494         RRCF     Multiplier3,F
+                      00495 
+0001E8 C??? F???      00496         movff    Multiplier1, Product4
+0001EC C??? F???      00497         movff    Multiplier2, Product5
+0001F0 C??? F???      00498         movff    Multiplier3, Product6
+                      00499  
+                      00500         
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 12
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0001F4 010?           00501         banksel BitCount
+0001F6 2E??           00502         DECFSZ  BitCount,F
+0001F8 EF?? F???      00503         GOTO    ADD_LOOP_24x24  
+0001FC 0012           00504         RETURN
+                      00505 
+                      00506 
+                      00507 ;/********************************************************************/
+                      00508 
+0001FE                00509 Divide_6by_3Bytes
+                      00510 
+                      00511 ; This routin performs a 48 by 24 bits division
+                      00512 
+                      00513 
+                      00514 ;Inputs:
+                      00515 ;       Dividend - Dividend:6   (0 - least significant!)
+                      00516 ;       Divisor  - Test:3               (0 - least significant!)
+                      00517 ;Temporary:
+                      00518 ;       Counter  - Count
+                      00519 ;       Shift    - Shift:6
+                      00520 ;Output:
+                      00521 ;       Quotient - Dividend:6   (0 - least significant!)
+                      00522 ;       Remainder- Rem:3        (0 - least significant!)
+                      00523 
+                      00524 ; Tested successfull for the PIC18F4550
+                      00525 ; Date: April 9, 2007
+                      00526 ; Youbok Lee
+                      00527 
+                      00528 ;--------- Output: --------------- 
+                      00529         ; Dividend6: MSB
+                      00530         ; Dividend1: LSB
+                      00531 ; -------- Inputs  ---------------
+                      00532 ;        Divisor3       ; MSB
+                      00533 ;        Divisor1       ; LSB
+                      00534 
+                      00535 ;        Product6 ; MSB
+                      00536 ;        Product1 ; LSB
+                      00537 ;---------------------------------
+                      00538 ;**************************************************************************
+                      00539 
+                      00540 
+                      00541 ;---------------------------------------------------
+                      00542 ; SUBROUTINE - 48 by 24 BITs DIVISION
+                      00543 
+                      00544 
+0001FE 010?           00545         banksel Count
+000200 0E30           00546         movlw   .48
+000202 6E??           00547         movwf   Count
+                      00548 
+                      00549 
+                      00550 ;----------------
+                      00551 ;       banksel Product1
+                      00552 ;       movff   Product1,countT6        ; MSB for gain =2,4,8
+                      00553 ;       movff   Product2,countT5        ; MSB for gain =1
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 13
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00554 ;       movff   Product3,countT4
+                      00555 ;       movff   Product4,countT3
+                      00556 ;       movff   Product5,countT2
+                      00557 ;       movff   Product6,countT1
+                      00558 ;;------------------
+                      00559 ;
+                      00560 ;
+                      00561 ;       movff Dividend+0, Shift+0
+                      00562 ;       movff Dividend+1, Shift+1
+                      00563 ;       movff Dividend+2, Shift+2
+                      00564 ;       movff Dividend+3, Shift+3
+                      00565 ;       movff Dividend+4, Shift+4
+                      00566 ;       movff Dividend+5, Shift+5
+                      00567 ;
+                      00568 ;------------------------
+000204 010?           00569         banksel Shift1
+000206 C??? F???      00570         movff   Product6, Shift1                        ; LSB --> it is a true LSB --> confirmed !
+00020A C??? F???      00571         movff   Product5, Shift2
+00020E C??? F???      00572         movff   Product4, Shift3
+000212 C??? F???      00573         movff   Product3, Shift4
+000216 C??? F???      00574         movff   Product2, Shift5
+00021A C??? F???      00575         movff   Product1, Shift6                        ; MSB ?
+                      00576 
+00021E 010?           00577         banksel Dividend1
+000220 6A??           00578         clrf    Dividend1
+000222 6A??           00579         clrf    Dividend2
+000224 6A??           00580         clrf    Dividend3
+000226 6A??           00581         clrf    Dividend4
+000228 6A??           00582         clrf    Dividend5
+00022A 6A??           00583         clrf    Dividend6
+                      00584 
+00022C 010?           00585         banksel Rem3
+00022E 6A??           00586         clrf    Rem3
+000230 6A??           00587         clrf    Rem2
+000232 6A??           00588         clrf    Rem1
+                      00589 ;-----------------
+000234                00590 dloop
+000234 90D8           00591         bcf     STATUS, C
+                      00592 
+000236 010?           00593         banksel Shift1
+000238 36??           00594         rlcf    Shift1
+00023A 36??           00595         rlcf    Shift2
+00023C 36??           00596         rlcf    Shift3
+00023E 36??           00597         rlcf    Shift4
+000240 36??           00598         rlcf    Shift5
+000242 36??           00599         rlcf    Shift6
+000244 36??           00600         rlcf    Rem1
+000246 36??           00601         rlcf    Rem2
+000248 36??           00602         rlcf    Rem3
+                      00603 
+00024A 010?           00604         banksel Divisor3
+00024C 50??           00605         movf    Divisor3, w
+                      00606 
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 14
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00024E 010?           00607         banksel Rem3
+000250 5C??           00608         subwf   Rem3, w
+                      00609 
+000252 A4D8           00610         btfss   STATUS, Z
+000254 D???           00611         bra     nochk
+                      00612 
+000256 010?           00613         banksel Divisor2
+000258 50??           00614         movf    Divisor2,w
+                      00615 
+00025A 010?           00616         banksel Rem2
+00025C 5C??           00617         subwf   Rem2,w
+                      00618 
+00025E A4D8           00619         btfss   STATUS, Z
+000260 D???           00620         bra     nochk
+                      00621 
+000262 010?           00622         banksel Divisor1
+000264 50??           00623         movf    Divisor1,w
+                      00624 
+000266 010?           00625         banksel Rem1
+000268 5C??           00626         subwf   Rem1,w
+00026A                00627 nochk
+00026A A0D8           00628         btfss   STATUS, C
+00026C D???           00629         bra     nogo
+                      00630 
+                      00631 
+00026E 010?           00632         banksel Divisor1
+000270 50??           00633         movf    Divisor1,w
+                      00634 
+000272 010?           00635         banksel Rem1
+000274 5E??           00636         subwf   Rem1
+                      00637 ;----------------------------
+000276 B0D8           00638         btfsc STATUS, C
+000278 D???           00639         bra             nodec_remainM
+                      00640 
+00027A 010?           00641         banksel Rem2
+00027C 06??           00642         decf    Rem2, f
+00027E 50??           00643         movf    Rem2, w
+000280 0AFF           00644         xorlw   0xff
+000282 B4D8           00645         btfsc   STATUS, Z
+000284 06??           00646         decf    Rem3, f
+000286                00647 nodec_remainM
+                      00648 
+000286 010?           00649         banksel Divisor2
+000288 50??           00650         movf    Divisor2, w
+                      00651 
+00028A 010?           00652         banksel Rem2
+00028C 5E??           00653         subwf   Rem2, f
+00028E A0D8           00654         btfss   STATUS, C
+000290 06??           00655         decf    Rem3, f
+                      00656 
+000292 010?           00657         banksel Divisor3
+000294 50??           00658         movf    Divisor3, w
+                      00659 
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 15
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000296 010?           00660         banksel Rem3
+000298 5E??           00661         subwf   Rem3, f
+00029A 80D8           00662         bsf     STATUS, C
+00029C                00663 nogo
+00029C 010?           00664         banksel Dividend1
+00029E 36??           00665         rlcf    Dividend1
+0002A0 36??           00666         rlcf    Dividend2
+0002A2 36??           00667         rlcf    Dividend3
+0002A4 36??           00668         rlcf    Dividend4
+0002A6 36??           00669         rlcf    Dividend5
+0002A8 36??           00670         rlcf    Dividend6
+                      00671 
+0002AA 010?           00672         banksel Count
+0002AC 2E??           00673         decfsz  Count, f
+0002AE EF?? F???      00674         goto    dloop
+0002B2 0012           00675     return
+                      00676 
+                      00677 ;/******************************************************************************/
+0002B4                00678 Add_Two_6Bytes
+                      00679 ;/******* This routin addes  6 bytes + 6 bytes *********/
+                      00680 
+                      00681 ;------------- Binary Addition --------------------------
+                      00682 ; Binary addition of two 6 registers:
+                      00683 ;                    AddByteA_6 -AddByteA_5 - AddByteA_4 -AddByteA_3 -AddByteA_2 -AddByteA_1
+                      00684 ;              + AddByteB_6 -AddByteB_5 - AddByteB_4 -AddByteB_3 -AddByteB_2 -AddByteB_1
+                      00685 ;---------------------------------------------------------------------------
+                      00686 ; results = Carry_fromAdd + AddByteB_6 -AddByteB_5 - AddByteB_4 -AddByteB_3 -AddByteB_2 -AddByteB_1
+                      00687 ; result is stored in AddByteB
+                      00688 ;
+                      00689 ;--------------------------------------------------------
+                      00690 
+                      00691 
+0002B4 010?           00692         banksel Carry_fromAdd
+0002B6 6A??           00693         clrf    Carry_fromAdd
+                      00694 ;----------------------------------
+                      00695 
+0002B8 010?           00696         banksel AddByteA
+0002BA 50??           00697         movf    AddByteA,w
+0002BC 26??           00698     addwf   AddByteB,f
+                      00699 
+0002BE 50??           00700         movf    AddByteA+1,w
+0002C0 B0D8           00701         btfsc   STATUS,C
+0002C2 3C??           00702         incfsz  AddByteA+1,w
+0002C4 26??           00703         addwf   AddByteB+1,f
+                      00704         
+0002C6 50??           00705         movf    AddByteA+2,w
+0002C8 B0D8           00706         btfsc   STATUS,C
+0002CA 3C??           00707         incfsz  AddByteA+2,w
+0002CC 26??           00708         addwf   AddByteB+2,f
+                      00709         
+0002CE 50??           00710         movf    AddByteA+3,w
+0002D0 B0D8           00711         btfsc   STATUS,C
+0002D2 3C??           00712         incfsz  AddByteA+3,w
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 16
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0002D4 26??           00713         addwf   AddByteB+3,f
+                      00714         
+0002D6 50??           00715         movf    AddByteA+4,w
+0002D8 B0D8           00716         btfsc   STATUS,C
+0002DA 3C??           00717         incfsz  AddByteA+4,w
+0002DC 26??           00718         addwf   AddByteB+4,f
+                      00719 
+0002DE 50??           00720         movf    AddByteA+5,w
+0002E0 B0D8           00721         btfsc   STATUS,C
+0002E2 3C??           00722         incfsz  AddByteA+5,w
+0002E4 26??           00723         addwf   AddByteB+5,f
+                      00724 
+                      00725         
+0002E6 B0D8           00726         btfsc   STATUS,C
+0002E8 80??           00727         bsf             Carry_fromAdd,0
+0002EA 0012           00728         return
+                      00729 ;------------------------------------
+                      00730 
+                      00731 
+                      00732         end
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 17
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+A                                 00000000
+ABDEN                             00000000
+ABDOVF                            00000007
+ACCESS                            00000000
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ACQT0                             00000003
+ACQT1                             00000004
+ACQT2                             00000005
+ACTVIE                            00000002
+ACTVIF                            00000002
+ADCON0                            00000FC2
+ADCON1                            00000FC1
+ADCON2                            00000FC0
+ADCS0                             00000000
+ADCS1                             00000001
+ADCS2                             00000002
+ADDEN                             00000003
+ADDR0                             00000000
+ADDR1                             00000001
+ADDR2                             00000002
+ADDR3                             00000003
+ADDR4                             00000004
+ADDR5                             00000005
+ADDR6                             00000006
+ADD_LOOP_24x24                    000001BA
+ADEN                              00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADIP                              00000006
+ADON                              00000000
+ADRES                             00000FC3
+ADRESH                            00000FC4
+ADRESL                            00000FC3
+AN0                               00000000
+AN1                               00000001
+AN2                               00000002
+AN3                               00000003
+AN4                               00000005
+AddByteA                          00000000
+AddByteB                          00000000
+Add_Two_6Bytes                    000002B4
+BANKED                            00000001
+BAUDCON                           00000FB8
+BCLIE                             00000003
+BCLIF                             00000003
+BCLIP                             00000003
+BF                                00000000
+BGST                              00000005
+BOR                               00000000
+BRG16                             00000003
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 18
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+BRGH                              00000002
+BSR                               00000FE0
+BTOEE                             00000004
+BTOEF                             00000004
+BTSEE                             00000007
+BTSEF                             00000007
+BitCount                          0000000C
+C                                 00000000
+C1INV                             00000004
+C1OUT                             00000006
+C2INV                             00000005
+C2OUT                             00000007
+CCP1                              00000002
+CCP1AS                            00000FB6
+CCP1CON                           00000FBD
+CCP1DEL                           00000FB7
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1IP                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP2CON                           00000FBA
+CCP2IE                            00000000
+CCP2IF                            00000000
+CCP2IP                            00000000
+CCP2M0                            00000000
+CCP2M1                            00000001
+CCP2M2                            00000002
+CCP2M3                            00000003
+CCPR1                             00000FBE
+CCPR1H                            00000FBF
+CCPR1L                            00000FBE
+CCPR2                             00000FBB
+CCPR2H                            00000FBC
+CCPR2L                            00000FBB
+CFGS                              00000006
+CHS0                              00000002
+CHS1                              00000003
+CHS2                              00000004
+CHS3                              00000005
+CIS                               00000003
+CK                                00000006
+CK1SPP                            00000000
+CK2SPP                            00000001
+CKE                               00000006
+CKP                               00000004
+CLK1EN                            00000004
+CLKCFG0                           00000006
+CLKCFG1                           00000007
+CM0                               00000000
+CM1                               00000001
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 19
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CM2                               00000002
+CMCON                             00000FB4
+CMIE                              00000006
+CMIF                              00000006
+CMIP                              00000006
+CRC16EE                           00000002
+CRC16EF                           00000002
+CRC5EE                            00000001
+CRC5EF                            00000001
+CREN                              00000004
+CSEN                              00000005
+CSRC                              00000007
+CVR0                              00000000
+CVR1                              00000001
+CVR2                              00000002
+CVR3                              00000003
+CVRCON                            00000FB5
+CVREF                             00000004
+CVREN                             00000007
+CVROE                             00000006
+CVRR                              00000005
+CVRSS                             00000004
+Carry_fromAdd                     00000000
+Count                             00000016
+D                                 00000005
+DATA_ADDRESS                      00000005
+DC                                00000001
+DC1B0                             00000004
+DC1B1                             00000005
+DC2B0                             00000004
+DC2B1                             00000005
+DDRA                              TRISA
+DDRB                              TRISB
+DDRC                              TRISC
+DDRD                              TRISD
+DDRE                              TRISE
+DELAYTIME                         .50
+DFN8EE                            00000003
+DFN8EF                            00000003
+DIR                               00000002
+DONE                              00000001
+D_A                               00000005
+Divide_6by_3Bytes                 000001FE
+Dividend1                         00000000
+Dividend2                         00000000
+Dividend3                         00000000
+Dividend4                         00000000
+Dividend5                         00000000
+Dividend6                         00000000
+Divisor1                          00000000
+Divisor2                          00000000
+Divisor3                          00000000
+ECCP1AS                           00000FB6
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 20
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ECCP1CON                          00000FBD
+ECCP1DEL                          00000FB7
+ECCPAS0                           00000004
+ECCPAS1                           00000005
+ECCPAS2                           00000006
+ECCPASE                           00000007
+EEADR                             00000FA9
+EECON1                            00000FA6
+EECON2                            00000FA7
+EEDATA                            00000FA8
+EEIE                              00000004
+EEIF                              00000004
+EEIP                              00000004
+EEPGD                             00000007
+ENDP0                             00000003
+ENDP1                             00000004
+ENDP2                             00000005
+ENDP3                             00000006
+EPCONDIS                          00000003
+EPHSHK                            00000004
+EPINEN                            00000001
+EPOUTEN                           00000002
+EPSTALL                           00000000
+FAST                              00000001
+FERR                              00000002
+FLTS                              00000002
+FREE                              00000004
+FRM0                              00000000
+FRM1                              00000001
+FRM10                             00000002
+FRM2                              00000002
+FRM3                              00000003
+FRM4                              00000004
+FRM5                              00000005
+FRM6                              00000006
+FRM7                              00000007
+FRM8                              00000000
+FRM9                              00000001
+FSEN                              00000002
+FSR0                              00000000
+FSR0H                             00000FEA
+FSR0L                             00000FE9
+FSR1                              00000001
+FSR1H                             00000FE2
+FSR1L                             00000FE1
+FSR2                              00000002
+FSR2H                             00000FDA
+FSR2L                             00000FD9
+GCEN                              00000007
+GIE                               00000007
+GIEH                              00000007
+GIEL                              00000006
+GO                                00000001
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 21
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+GO_DONE                           00000001
+Gain_Selected                     00000000
+HLVDCON                           00000FD2
+HLVDEN                            00000004
+HLVDIE                            00000002
+HLVDIF                            00000002
+HLVDIN                            00000005
+HLVDIP                            00000002
+HLVDL0                            00000000
+HLVDL1                            00000001
+HLVDL2                            00000002
+HLVDL3                            00000003
+I2C_DAT                           00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+IDLEIE                            00000004
+IDLEIF                            00000004
+IDLEN                             00000007
+INDF0                             00000FEF
+INDF1                             00000FE7
+INDF2                             00000FDF
+INT0                              00000000
+INT0E                             00000004
+INT0F                             00000001
+INT0IE                            00000004
+INT0IF                            00000001
+INT1                              00000001
+INT1E                             00000003
+INT1F                             00000000
+INT1IE                            00000003
+INT1IF                            00000000
+INT1IP                            00000006
+INT1P                             00000006
+INT2                              00000002
+INT2E                             00000004
+INT2F                             00000001
+INT2IE                            00000004
+INT2IF                            00000001
+INT2IP                            00000007
+INT2P                             00000007
+INTCON                            00000FF2
+INTCON2                           00000FF1
+INTCON3                           00000FF0
+INTEDG0                           00000006
+INTEDG1                           00000005
+INTEDG2                           00000004
+INTSRC                            00000007
+IOFS                              00000002
+IPEN                              00000007
+IPR1                              00000F9F
+IPR2                              00000FA2
+IRCF0                             00000004
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 22
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+IRCF1                             00000005
+IRCF2                             00000006
+IRVST                             00000005
+IVRST                             00000005
+IsitForU5_Volt                    00000000
+Its_Gain_1                        00000106
+Its_Gain_2                        0000012C
+Its_Gain_4                        00000152
+Its_Gain_8                        00000178
+LATA                              00000F89
+LATA0                             00000000
+LATA1                             00000001
+LATA2                             00000002
+LATA3                             00000003
+LATA4                             00000004
+LATA5                             00000005
+LATA6                             00000006
+LATB                              00000F8A
+LATB0                             00000000
+LATB1                             00000001
+LATB2                             00000002
+LATB3                             00000003
+LATB4                             00000004
+LATB5                             00000005
+LATB6                             00000006
+LATB7                             00000007
+LATC                              00000F8B
+LATC0                             00000000
+LATC1                             00000001
+LATC2                             00000002
+LATC6                             00000006
+LATC7                             00000007
+LATD                              00000F8C
+LATD0                             00000000
+LATD1                             00000001
+LATD2                             00000002
+LATD3                             00000003
+LATD4                             00000004
+LATD5                             00000005
+LATD6                             00000006
+LATD7                             00000007
+LATE                              00000F8D
+LATE0                             00000000
+LATE1                             00000001
+LATE2                             00000002
+LVDCON                            00000FD2
+LVDEN                             00000004
+LVDIE                             00000002
+LVDIF                             00000002
+LVDIN                             00000005
+LVDIP                             00000002
+LVDL0                             00000000
+LVDL1                             00000001
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 23
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+LVDL2                             00000002
+LVDL3                             00000003
+LVV0                              00000000
+LVV1                              00000001
+LVV2                              00000002
+LVV3                              00000003
+Multipland1                       00000000
+Multipland2                       00000000
+Multipland3                       00000000
+Multiplier1                       00000000
+Multiplier2                       00000000
+Multiplier3                       00000000
+Multiply_24x24Bits_ADC            000000F2
+Multiply_3x3bytes                 0000019E
+N                                 00000004
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BOR                           00000000
+NOT_DONE                          00000001
+NOT_IPEN                          00000007
+NOT_PD                            00000002
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RI                            00000004
+NOT_T1SYNC                        00000002
+NOT_T3SYNC                        00000002
+NOT_TO                            00000003
+NOT_W                             00000002
+NOT_WRITE                         00000002
+NO_BORROW1                        00000044
+NO_BORROW2                        0000007A
+NO_BORROW3                        000000A6
+NO_BORROW4                        000000C8
+NO_BORROW5                        000000E0
+NO_BORROW6                        000000EE
+NotScaledBy2_G1                   0000011C
+NotScaledBy2_G2                   00000142
+NotScaledBy2_G4                   00000168
+NotScaledBy2_G8                   0000018E
+OERR                              00000001
+OESPP                             00000002
+OSC2                              00000006
+OSCCON                            00000FD3
+OSCFIE                            00000007
+OSCFIF                            00000007
+OSCFIP                            00000007
+OSCTUNE                           00000F9B
+OSTS                              00000003
+OV                                00000003
+P                                 00000004
+P1A                               00000002
+P1M0                              00000006
+P1M1                              00000007
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 24
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PC                                00000FF9
+PCFG0                             00000000
+PCFG1                             00000001
+PCFG2                             00000002
+PCFG3                             00000003
+PCL                               00000FF9
+PCLATH                            00000FFA
+PCLATU                            00000FFB
+PD                                00000002
+PDC0                              00000000
+PDC1                              00000001
+PDC2                              00000002
+PDC3                              00000003
+PDC4                              00000004
+PDC5                              00000005
+PDC6                              00000006
+PEIE                              00000006
+PEN                               00000002
+PGC                               00000006
+PGD                               00000007
+PGM                               00000005
+PIDEE                             00000000
+PIDEF                             00000000
+PIE1                              00000F9D
+PIE2                              00000FA0
+PIR1                              00000F9E
+PIR2                              00000FA1
+PKTDIS                            00000004
+PLUSW0                            00000FEB
+PLUSW1                            00000FE3
+PLUSW2                            00000FDB
+POR                               00000001
+PORTA                             00000F80
+PORTB                             00000F81
+PORTC                             00000F82
+PORTD                             00000F83
+PORTE                             00000F84
+POSTDEC0                          00000FED
+POSTDEC1                          00000FE5
+POSTDEC2                          00000FDD
+POSTINC0                          00000FEE
+POSTINC1                          00000FE6
+POSTINC2                          00000FDE
+PPB0                              00000000
+PPB1                              00000001
+PPBI                              00000001
+PPBRST                            00000006
+PR2                               00000FCB
+PREINC0                           00000FEC
+PREINC1                           00000FE4
+PREINC2                           00000FDC
+PROD                              00000FF3
+PRODH                             00000FF4
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 25
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PRODL                             00000FF3
+PRSEN                             00000007
+PSA                               00000003
+PSSAC0                            00000002
+PSSAC1                            00000003
+PSSBD0                            00000000
+PSSBD1                            00000001
+Product1                          00000000
+Product2                          00000000
+Product3                          00000000
+Product4                          00000000
+Product5                          00000000
+Product6                          00000000
+R                                 00000002
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RA5                               00000005
+RA6                               00000006
+RB0                               00000000
+RB1                               00000001
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RBIE                              00000003
+RBIF                              00000000
+RBIP                              00000000
+RBPU                              00000007
+RC0                               00000000
+RC1                               00000001
+RC2                               00000002
+RC4                               00000004
+RC5                               00000005
+RC6                               00000006
+RC7                               00000007
+RCEN                              00000003
+RCIDL                             00000006
+RCIE                              00000005
+RCIF                              00000005
+RCIP                              00000005
+RCMT                              00000006
+RCON                              00000FD0
+RCREG                             00000FAE
+RCSTA                             00000FAB
+RD                                00000000
+RD0                               00000000
+RD1                               00000001
+RD16                              00000007
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 26
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RD2                               00000002
+RD3                               00000003
+RD4                               00000004
+RD5                               00000005
+RD6                               00000006
+RD7                               00000007
+RDPU                              00000007
+RDSPP                             00000007
+RE0                               00000000
+RE1                               00000001
+RE2                               00000002
+RE3                               00000003
+READ_WRITE                        00000002
+RESUME                            00000002
+RI                                00000004
+RSEN                              00000001
+RX                                00000007
+RX9                               00000006
+RX9D                              00000000
+R_W                               00000002
+Rem1                              00000013
+Rem2                              00000014
+Rem3                              00000015
+S                                 00000003
+SBOREN                            00000006
+SCKP                              00000004
+SCLK_I2C                          PORTA,4
+SCL_dir                           TRISA,4
+SCS0                              00000000
+SCS1                              00000001
+SDA_I2C                           PORTA,5
+SDA_dir                           TRISA,5
+SE0                               00000005
+SEN                               00000000
+SENDB                             00000003
+SKIP_LOOP_24x24                   000001D8
+SMP                               00000007
+SOFIE                             00000006
+SOFIF                             00000006
+SPBRG                             00000FAF
+SPBRGH                            00000FB0
+SPEN                              00000007
+SPP0                              00000000
+SPP1                              00000001
+SPP2                              00000002
+SPP3                              00000003
+SPP4                              00000004
+SPP5                              00000005
+SPP6                              00000006
+SPP7                              00000007
+SPPBUSY                           00000004
+SPPCFG                            00000F63
+SPPCON                            00000F65
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 27
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SPPDATA                           00000F62
+SPPEN                             00000000
+SPPEPS                            00000F64
+SPPIE                             00000007
+SPPIF                             00000007
+SPPIP                             00000007
+SPPOWN                            00000001
+SREN                              00000005
+SSPADD                            00000FC8
+SSPBUF                            00000FC9
+SSPCON1                           00000FC6
+SSPCON2                           00000FC5
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPIP                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPOV                             00000006
+SSPSTAT                           00000FC7
+STALLIE                           00000005
+STALLIF                           00000005
+STATUS                            00000FD8
+STKFUL                            00000007
+STKPTR                            00000FFC
+STKPTR0                           00000000
+STKPTR1                           00000001
+STKPTR2                           00000002
+STKPTR3                           00000003
+STKPTR4                           00000004
+STKUNF                            00000006
+SUSPND                            00000001
+SWDTE                             00000000
+SWDTEN                            00000000
+SYNC                              00000004
+Shift1                            0000000D
+Shift2                            0000000E
+Shift3                            0000000F
+Shift4                            00000010
+Shift5                            00000011
+Shift6                            00000012
+Start_Multiply                    0000019E
+SubtractByteA                     00000000
+SubtractByteB                     00000006
+Subtract_6Bytes_6Bytes            00000000
+Sync_LED11                        PORTD,6
+T08BIT                            00000006
+T0CKI                             00000004
+T0CON                             00000FD5
+T0CS                              00000005
+T0IE                              00000005
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 28
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+T0IF                              00000002
+T0IP                              00000002
+T0PS0                             00000000
+T0PS1                             00000001
+T0PS2                             00000002
+T0SE                              00000004
+T13CKI                            00000000
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000FCD
+T1OSCEN                           00000003
+T1OSI                             00000001
+T1OSO                             00000000
+T1RUN                             00000006
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000FCA
+T2OUTPS0                          00000003
+T2OUTPS1                          00000004
+T2OUTPS2                          00000005
+T2OUTPS3                          00000006
+T3CCP1                            00000003
+T3CCP2                            00000006
+T3CKPS0                           00000004
+T3CKPS1                           00000005
+T3CON                             00000FB1
+T3NSYNC                           00000002
+T3SYNC                            00000002
+TABLAT                            00000FF5
+TBLPTR                            00000FF6
+TBLPTRH                           00000FF7
+TBLPTRL                           00000FF6
+TBLPTRU                           00000FF8
+TMR0H                             00000FD7
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR0IP                            00000002
+TMR0L                             00000FD6
+TMR0ON                            00000007
+TMR1CS                            00000001
+TMR1H                             00000FCF
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1IP                            00000000
+TMR1L                             00000FCE
+TMR1ON                            00000000
+TMR2                              00000FCC
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2IP                            00000001
+TMR2ON                            00000002
+TMR3CS                            00000001
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 29
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TMR3H                             00000FB3
+TMR3IE                            00000001
+TMR3IF                            00000001
+TMR3IP                            00000001
+TMR3L                             00000FB2
+TMR3ON                            00000000
+TO                                00000003
+TOS                               00000FFD
+TOSH                              00000FFE
+TOSL                              00000FFD
+TOSU                              00000FFF
+TP16_LED12                        PORTD,7
+TP17_LED13                        PORTD,3
+TRISA                             00000F92
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISA5                            00000005
+TRISA6                            00000006
+TRISB                             00000F93
+TRISB0                            00000000
+TRISB1                            00000001
+TRISB2                            00000002
+TRISB3                            00000003
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+TRISC                             00000F94
+TRISC0                            00000000
+TRISC1                            00000001
+TRISC2                            00000002
+TRISC6                            00000006
+TRISC7                            00000007
+TRISD                             00000F95
+TRISD0                            00000000
+TRISD1                            00000001
+TRISD2                            00000002
+TRISD3                            00000003
+TRISD4                            00000004
+TRISD5                            00000005
+TRISD6                            00000006
+TRISD7                            00000007
+TRISE                             00000F96
+TRISE0                            00000000
+TRISE1                            00000001
+TRISE2                            00000002
+TRMT                              00000001
+TRNIE                             00000003
+TRNIF                             00000003
+TUN0                              00000000
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 30
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TUN1                              00000001
+TUN2                              00000002
+TUN3                              00000003
+TUN4                              00000004
+TX                                00000006
+TX9                               00000006
+TX9D                              00000000
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXIP                              00000004
+TXREG                             00000FAD
+TXSTA                             00000FAC
+U5_x2Voltage_G1                   0000010C
+U5_x2Voltage_G2                   00000132
+U5_x2Voltage_G4                   00000158
+U5_x2Voltage_G8                   0000017E
+UA                                00000001
+UADDR                             00000F6E
+UCFG                              00000F6F
+UCON                              00000F6D
+UEIE                              00000F6B
+UEIR                              00000F6A
+UEP0                              00000F70
+UEP1                              00000F71
+UEP10                             00000F7A
+UEP11                             00000F7B
+UEP12                             00000F7C
+UEP13                             00000F7D
+UEP14                             00000F7E
+UEP15                             00000F7F
+UEP2                              00000F72
+UEP3                              00000F73
+UEP4                              00000F74
+UEP5                              00000F75
+UEP6                              00000F76
+UEP7                              00000F77
+UEP8                              00000F78
+UEP9                              00000F79
+UERRIE                            00000001
+UERRIF                            00000001
+UFRM                              00000F66
+UFRMH                             00000F67
+UFRML                             00000F66
+UIE                               00000F69
+UIR                               00000F68
+UOEMON                            00000006
+UPUEN                             00000004
+URSTIE                            00000000
+URSTIF                            00000000
+USBEN                             00000003
+USBIE                             00000005
+USBIF                             00000005
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 31
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+USBIP                             00000005
+USTAT                             00000F6C
+UTEYE                             00000007
+UTRDIS                            00000003
+VCFG0                             00000004
+VCFG1                             00000005
+VDIRMAG                           00000007
+VREFM                             00000002
+VREFP                             00000003
+W                                 00000000
+WCOL                              00000007
+WDTCON                            00000FD1
+WR                                00000001
+WREG                              00000FE8
+WREN                              00000002
+WRERR                             00000003
+WRSPP                             00000006
+WS0                               00000000
+WS1                               00000001
+WS2                               00000002
+WS3                               00000003
+WUE                               00000001
+Z                                 00000002
+_BORV_0_2L                        000000E7
+_BORV_1_2L                        000000EF
+_BORV_2_2L                        000000F7
+_BORV_3_2L                        000000FF
+_BOR_OFF_2L                       000000F9
+_BOR_ON_2L                        000000FF
+_BOR_ON_ACTIVE_2L                 000000FD
+_BOR_SOFT_2L                      000000FB
+_C                                STATUS,0
+_CCP2MX_OFF_3H                    000000FE
+_CCP2MX_ON_3H                     000000FF
+_CONFIG1H                         00300001
+_CONFIG1L                         00300000
+_CONFIG2H                         00300003
+_CONFIG2L                         00300002
+_CONFIG3H                         00300005
+_CONFIG4L                         00300006
+_CONFIG5H                         00300009
+_CONFIG5L                         00300008
+_CONFIG6H                         0030000B
+_CONFIG6L                         0030000A
+_CONFIG7H                         0030000D
+_CONFIG7L                         0030000C
+_CP0_OFF_5L                       000000FF
+_CP0_ON_5L                        000000FE
+_CP1_OFF_5L                       000000FF
+_CP1_ON_5L                        000000FD
+_CP2_OFF_5L                       000000FF
+_CP2_ON_5L                        000000FB
+_CP3_OFF_5L                       000000FF
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 32
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_CP3_ON_5L                        000000F7
+_CPB_OFF_5H                       000000FF
+_CPB_ON_5H                        000000BF
+_CPD_OFF_5H                       000000FF
+_CPD_ON_5H                        0000007F
+_CPUDIV_OSC1_PLL2_1L              000000E7
+_CPUDIV_OSC2_PLL3_1L              000000EF
+_CPUDIV_OSC3_PLL4_1L              000000F7
+_CPUDIV_OSC4_PLL6_1L              000000FF
+_DEBUG_OFF_4L                     000000FF
+_DEBUG_ON_4L                      0000007F
+_DEVID1                           003FFFFE
+_DEVID2                           003FFFFF
+_EBTR0_OFF_7L                     000000FF
+_EBTR0_ON_7L                      000000FE
+_EBTR1_OFF_7L                     000000FF
+_EBTR1_ON_7L                      000000FD
+_EBTR2_OFF_7L                     000000FF
+_EBTR2_ON_7L                      000000FB
+_EBTR3_OFF_7L                     000000FF
+_EBTR3_ON_7L                      000000F7
+_EBTRB_OFF_7H                     000000FF
+_EBTRB_ON_7H                      000000BF
+_FCMEN_OFF_1H                     000000BF
+_FCMEN_ON_1H                      000000FF
+_FOSC_ECIO_EC_1H                  000000F4
+_FOSC_ECPLLIO_EC_1H               000000F6
+_FOSC_ECPLL_EC_1H                 000000F7
+_FOSC_EC_EC_1H                    000000F5
+_FOSC_HSPLL_HS_1H                 000000FE
+_FOSC_HS_1H                       000000FC
+_FOSC_INTOSCIO_EC_1H              000000F8
+_FOSC_INTOSC_EC_1H                000000F9
+_FOSC_INTOSC_HS_1H                000000FB
+_FOSC_INTOSC_XT_1H                000000FA
+_FOSC_XTPLL_XT_1H                 000000F2
+_FOSC_XT_XT_1H                    000000F0
+_ICPRT_OFF_4L                     000000DF
+_ICPRT_ON_4L                      000000FF
+_IDLOC0                           00200000
+_IDLOC1                           00200001
+_IDLOC2                           00200002
+_IDLOC3                           00200003
+_IDLOC4                           00200004
+_IDLOC5                           00200005
+_IDLOC6                           00200006
+_IDLOC7                           00200007
+_IESO_OFF_1H                      0000007F
+_IESO_ON_1H                       000000FF
+_LPT1OSC_OFF_3H                   000000FB
+_LPT1OSC_ON_3H                    000000FF
+_LVP_OFF_4L                       000000FB
+_LVP_ON_4L                        000000FF
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 33
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_MCLRE_OFF_3H                     0000007F
+_MCLRE_ON_3H                      000000FF
+_PBADEN_OFF_3H                    000000FD
+_PBADEN_ON_3H                     000000FF
+_PLLDIV_10_1L                     000000FE
+_PLLDIV_12_1L                     000000FF
+_PLLDIV_1_1L                      000000F8
+_PLLDIV_2_1L                      000000F9
+_PLLDIV_3_1L                      000000FA
+_PLLDIV_4_1L                      000000FB
+_PLLDIV_5_1L                      000000FC
+_PLLDIV_6_1L                      000000FD
+_PWRT_OFF_2L                      000000FF
+_PWRT_ON_2L                       000000FE
+_STVREN_OFF_4L                    000000FE
+_STVREN_ON_4L                     000000FF
+_USBDIV_1_1L                      000000DF
+_USBDIV_2_1L                      000000FF
+_VREGEN_OFF_2L                    000000DF
+_VREGEN_ON_2L                     000000FF
+_WDTPS_1024_2H                    000000F5
+_WDTPS_128_2H                     000000EF
+_WDTPS_16384_2H                   000000FD
+_WDTPS_16_2H                      000000E9
+_WDTPS_1_2H                       000000E1
+_WDTPS_2048_2H                    000000F7
+_WDTPS_256_2H                     000000F1
+_WDTPS_2_2H                       000000E3
+_WDTPS_32768_2H                   000000FF
+_WDTPS_32_2H                      000000EB
+_WDTPS_4096_2H                    000000F9
+_WDTPS_4_2H                       000000E5
+_WDTPS_512_2H                     000000F3
+_WDTPS_64_2H                      000000ED
+_WDTPS_8192_2H                    000000FB
+_WDTPS_8_2H                       000000E7
+_WDT_OFF_2H                       000000FE
+_WDT_ON_2H                        000000FF
+_WRT0_OFF_6L                      000000FF
+_WRT0_ON_6L                       000000FE
+_WRT1_OFF_6L                      000000FF
+_WRT1_ON_6L                       000000FD
+_WRT2_OFF_6L                      000000FF
+_WRT2_ON_6L                       000000FB
+_WRT3_OFF_6L                      000000FF
+_WRT3_ON_6L                       000000F7
+_WRTB_OFF_6H                      000000FF
+_WRTB_ON_6H                       000000BF
+_WRTC_OFF_6H                      000000FF
+_WRTC_ON_6H                       000000DF
+_WRTD_OFF_6H                      000000FF
+_WRTD_ON_6H                       0000007F
+_XINST_OFF_4L                     000000BF
+MPASM  5.1             FUELGAUGE_MATHLIB.ASM   12-18-2007  18:09:31         PAGE 34
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_XINST_ON_4L                      000000FF
+__18F4550                         00000001
+dloop                             00000234
+nochk                             0000026A
+nodec_remainM                     00000286
+nogo                              0000029C
+sw_1                              PORTC,7
+sw_1_dir                          TRISC,7
+sw_2                              PORTB,0
+sw_2_dir                          TRISB,0
+sw_3                              PORTB,1
+sw_3_dir                          TRISB,1
+sw_4                              PORTB,2
+sw_4_dir                          TRISB,2
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

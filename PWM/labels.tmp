@@ -1,0 +1,25 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.1.30</VERSION>
+ <DEVICE>ATmega48</DEVICE>
+ <WORKING_DIR>D:\Designs\Atmel\PWM</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>C:\Archivos de programa\Atmel\AVR Tools\AvrAssembler2\Appnotes</DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>D:\Designs\Atmel\PWM\PWM.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:\Archivos de programa\Atmel\AVR Tools\AvrAssembler2\Appnotes\m48def.inc</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>D:\Designs\Atmel\PWM\PWM.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>D:\Designs\Atmel\PWM\PWM.hex</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>D:\Designs\Atmel\PWM\PWM.map</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <RESET><FILE>D:\Designs\Atmel\PWM\PWM.asm</FILE><LINE>8</LINE></RESET>
+  <LOOP><FILE>D:\Designs\Atmel\PWM\PWM.asm</FILE><LINE>17</LINE></LOOP>
+ </LABELS>
+</ASSEMBLER_INFO>

@@ -1,0 +1,29 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.1.30</VERSION>
+ <DEVICE>ATmega48</DEVICE>
+ <WORKING_DIR>D:\Designs\Atmel\Prueba_timers</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>C:\Archivos de programa\Atmel\AVR Tools\AvrAssembler2\Appnotes</DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>D:\Designs\Atmel\Prueba_timers\Prueba_timers.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:\Archivos de programa\Atmel\AVR Tools\AvrAssembler2\Appnotes\m48def.inc</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>D:\Designs\Atmel\Prueba_timers\Prueba_timers.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>D:\Designs\Atmel\Prueba_timers\Prueba_timers.hex</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>D:\Designs\Atmel\Prueba_timers\Prueba_timers.map</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <RESET><FILE>D:\Designs\Atmel\Prueba_timers\Prueba_timers.asm</FILE><LINE>15</LINE></RESET>
+  <TIM0_OVF><FILE>D:\Designs\Atmel\Prueba_timers\Prueba_timers.asm</FILE><LINE>55</LINE></TIM0_OVF>
+  <LOOP><FILE>D:\Designs\Atmel\Prueba_timers\Prueba_timers.asm</FILE><LINE>53</LINE></LOOP>
+  <INCREMENTA><FILE>D:\Designs\Atmel\Prueba_timers\Prueba_timers.asm</FILE><LINE>63</LINE></INCREMENTA>
+  <REINICIA><FILE>D:\Designs\Atmel\Prueba_timers\Prueba_timers.asm</FILE><LINE>66</LINE></REINICIA>
+  <ACTUALIZA><FILE>D:\Designs\Atmel\Prueba_timers\Prueba_timers.asm</FILE><LINE>71</LINE></ACTUALIZA>
+ </LABELS>
+</ASSEMBLER_INFO>

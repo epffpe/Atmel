@@ -1,0 +1,366 @@
+   1               		.file	"main.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.global __do_copy_data
+   8               		.global __do_clear_bss
+  16               	.Ltext0:
+  17               	.global	adc_init
+  19               	adc_init:
+  20               	.LFB7:
+  21               	.LM1:
+  22               	/* prologue: frame size=0 */
+  23               	/* prologue end (size=0) */
+  24               	.LM2:
+  25 0000 3E9A      		sbi 39-0x20,6
+  26               	.LM3:
+  27 0002 86B1      		in r24,38-0x20
+  28 0004 8868      		ori r24,lo8(-120)
+  29 0006 86B9      		out 38-0x20,r24
+  30               	/* epilogue: frame size=0 */
+  31 0008 0895      		ret
+  32               	/* epilogue end (size=1) */
+  33               	/* function adc_init size 5 (4) */
+  34               	.LFE7:
+  36               	.global	adc_start_conversion
+  38               	adc_start_conversion:
+  39               	.LFB8:
+  40               	.LM4:
+  41               	/* prologue: frame size=0 */
+  42               	/* prologue end (size=0) */
+  43               	.LVL0:
+  44               	.LM5:
+  45 000a 8093 0000 		sts ch,r24
+  46               	.LM6:
+  47 000e 97B1      		in r25,39-0x20
+  48 0010 907F      		andi r25,lo8(-16)
+  49 0012 982B      		or r25,r24
+  50 0014 97B9      		out 39-0x20,r25
+  51               	.LM7:
+  52 0016 86B1      		in r24,38-0x20
+  53               	.LVL1:
+  54 0018 8864      		ori r24,lo8(72)
+  55 001a 86B9      		out 38-0x20,r24
+  56               	.LM8:
+  57               	/* #APP */
+  58 001c 7894      		sei
+  59               	/* #NOAPP */
+  60               	/* epilogue: frame size=0 */
+  61 001e 0895      		ret
+  62               	/* epilogue end (size=1) */
+  63               	/* function adc_start_conversion size 12 (11) */
+  64               	.LFE8:
+  66               	.global	delay1s
+  68               	delay1s:
+  69               	.LFB9:
+  70               	.LM9:
+  71               	/* prologue: frame size=0 */
+  72               	/* prologue end (size=0) */
+  73 0020 20E0      		ldi r18,lo8(0)
+  74               	.LVL2:
+  75               	.L6:
+  76               	.LBB14:
+  77               	.LBB15:
+  78               	.LBB16:
+  79               	.LBB17:
+  80               	.LM10:
+  81 0022 80E2      		ldi r24,lo8(20000)
+  82 0024 9EE4      		ldi r25,hi8(20000)
+  83               	.LVL3:
+  84               	/* #APP */
+  85 0026 0197      		1: sbiw r24,1
+  86 0028 01F4      		brne 1b
+  87               	/* #NOAPP */
+  88               	.LBE17:
+  89               	.LBE16:
+  90               	.LBE15:
+  91               	.LBE14:
+  92               	.LM11:
+  93 002a 2F5F      		subi r18,lo8(-(1))
+  94 002c 2436      		cpi r18,lo8(100)
+  95 002e 01F4      		brne .L6
+  96               	/* epilogue: frame size=0 */
+  97 0030 0895      		ret
+  98               	/* epilogue end (size=1) */
+  99               	/* function delay1s size 11 (10) */
+ 100               	.LFE9:
+ 102               		.data
+ 103               	.LC0:
+ 104 0000 2564 00   		.string	"%d"
+ 105               		.text
+ 106               	.global	__vector_14
+ 108               	__vector_14:
+ 109               	.LFB12:
+ 110               	.LM12:
+ 111               	/* prologue: frame size=0 */
+ 112 0032 1F92      		push __zero_reg__
+ 113 0034 0F92      		push __tmp_reg__
+ 114 0036 0FB6      		in __tmp_reg__,__SREG__
+ 115 0038 0F92      		push __tmp_reg__
+ 116 003a 1124      		clr __zero_reg__
+ 117 003c 0F93      		push r16
+ 118 003e 1F93      		push r17
+ 119 0040 2F93      		push r18
+ 120 0042 3F93      		push r19
+ 121 0044 4F93      		push r20
+ 122 0046 5F93      		push r21
+ 123 0048 6F93      		push r22
+ 124 004a 7F93      		push r23
+ 125 004c 8F93      		push r24
+ 126 004e 9F93      		push r25
+ 127 0050 AF93      		push r26
+ 128 0052 BF93      		push r27
+ 129 0054 EF93      		push r30
+ 130 0056 FF93      		push r31
+ 131               	/* prologue end (size=19) */
+ 132               	.LM13:
+ 133 0058 84B1      		in r24,36-0x20
+ 134               	.LM14:
+ 135 005a 05B1      		in r16,37-0x20
+ 136 005c 10E0      		ldi r17,lo8(0)
+ 137 005e 102F      		mov r17,r16
+ 138 0060 0027      		clr r16
+ 139               	.LVL4:
+ 140 0062 080F      		add r16,r24
+ 141 0064 111D      		adc r17,__zero_reg__
+ 142               	.LM15:
+ 143 0066 4091 0000 		lds r20,ch
+ 144 006a 60E0      		ldi r22,lo8(0)
+ 145 006c 80E0      		ldi r24,lo8(CLRROW)
+ 146 006e 90E0      		ldi r25,hi8(CLRROW)
+ 147 0070 00D0      		rcall CopyStringtoLCD
+ 148               	.LM16:
+ 149 0072 4091 0000 		lds r20,ch
+ 150 0076 E42F      		mov r30,r20
+ 151 0078 F0E0      		ldi r31,lo8(0)
+ 152 007a EE0F      		lsl r30
+ 153 007c FF1F      		rol r31
+ 154 007e E050      		subi r30,lo8(-(LCDXY))
+ 155 0080 F040      		sbci r31,hi8(-(LCDXY))
+ 156 0082 60E0      		ldi r22,lo8(0)
+ 157 0084 8081      		ld r24,Z
+ 158 0086 9181      		ldd r25,Z+1
+ 159 0088 00D0      		rcall CopyStringtoLCD
+ 160               	.LM17:
+ 161 008a 1F93      		push r17
+ 162 008c 0F93      		push r16
+ 163 008e 80E0      		ldi r24,lo8(.LC0)
+ 164 0090 90E0      		ldi r25,hi8(.LC0)
+ 165 0092 9F93      		push r25
+ 166 0094 8F93      		push r24
+ 167 0096 00D0      		rcall printf
+ 168 0098 0F90      		pop __tmp_reg__
+ 169 009a 0F90      		pop __tmp_reg__
+ 170 009c 0F90      		pop __tmp_reg__
+ 171 009e 0F90      		pop __tmp_reg__
+ 172               	/* epilogue: frame size=0 */
+ 173 00a0 FF91      		pop r31
+ 174 00a2 EF91      		pop r30
+ 175 00a4 BF91      		pop r27
+ 176 00a6 AF91      		pop r26
+ 177 00a8 9F91      		pop r25
+ 178 00aa 8F91      		pop r24
+ 179 00ac 7F91      		pop r23
+ 180 00ae 6F91      		pop r22
+ 181 00b0 5F91      		pop r21
+ 182 00b2 4F91      		pop r20
+ 183 00b4 3F91      		pop r19
+ 184 00b6 2F91      		pop r18
+ 185 00b8 1F91      		pop r17
+ 186 00ba 0F91      		pop r16
+ 187 00bc 0F90      		pop __tmp_reg__
+ 188 00be 0FBE      		out __SREG__,__tmp_reg__
+ 189 00c0 0F90      		pop __tmp_reg__
+ 190 00c2 1F90      		pop __zero_reg__
+ 191 00c4 1895      		reti
+ 192               	/* epilogue end (size=19) */
+ 193               	/* function __vector_14 size 74 (36) */
+ 194               	.LFE12:
+ 196               	.global	init
+ 198               	init:
+ 199               	.LFB11:
+ 200               	.LM18:
+ 201               	/* prologue: frame size=0 */
+ 202               	/* prologue end (size=0) */
+ 203               	.LM19:
+ 204 00c6 80E0      		ldi r24,lo8(lcd_str)
+ 205 00c8 90E0      		ldi r25,hi8(lcd_str)
+ 206 00ca 9093 0000 		sts (__iob+2)+1,r25
+ 207 00ce 8093 0000 		sts __iob+2,r24
+ 208               	.LM20:
+ 209 00d2 00D0      		rcall LCDinit
+ 210               	.LM21:
+ 211 00d4 00D0      		rcall LCDclr
+ 212               	.LM22:
+ 213 00d6 60E0      		ldi r22,lo8(0)
+ 214 00d8 80E0      		ldi r24,lo8(0)
+ 215 00da 00D0      		rcall LCDGotoXY
+ 216               	.LBB18:
+ 217               	.LBB19:
+ 218               	.LM23:
+ 219 00dc 3E9A      		sbi 39-0x20,6
+ 220               	.LM24:
+ 221 00de 86B1      		in r24,38-0x20
+ 222 00e0 8868      		ori r24,lo8(-120)
+ 223 00e2 86B9      		out 38-0x20,r24
+ 224               	.LBE19:
+ 225               	.LBE18:
+ 226               	/* epilogue: frame size=0 */
+ 227 00e4 0895      		ret
+ 228               	/* epilogue end (size=1) */
+ 229               	/* function init size 16 (15) */
+ 230               	.LFE11:
+ 233               	LCDsendstream:
+ 234               	.LFB10:
+ 235               	.LM25:
+ 236               	/* prologue: frame size=0 */
+ 237               	/* prologue end (size=0) */
+ 238               	.LVL5:
+ 239               	.LM26:
+ 240 00e6 00D0      		rcall LCDsendChar
+ 241               	.LVL6:
+ 242               	.LM27:
+ 243 00e8 80E0      		ldi r24,lo8(0)
+ 244 00ea 90E0      		ldi r25,hi8(0)
+ 245               	/* epilogue: frame size=0 */
+ 246 00ec 0895      		ret
+ 247               	/* epilogue end (size=1) */
+ 248               	/* function LCDsendstream size 4 (3) */
+ 249               	.LFE10:
+ 251               		.data
+ 252               	.LC1:
+ 253 0003 4144 4320 		.string	"ADC Test"
+ 253      5465 7374 
+ 253      00
+ 254               		.text
+ 255               	.global	main
+ 257               	main:
+ 258               	.LFB13:
+ 259               	.LM28:
+ 260               	/* prologue: frame size=0 */
+ 261 00ee 0F93      		push r16
+ 262 00f0 1F93      		push r17
+ 263               	/* prologue end (size=2) */
+ 264               	.LM29:
+ 265 00f2 00D0      		rcall init
+ 266               	.LM30:
+ 267 00f4 80E0      		ldi r24,lo8(.LC1)
+ 268 00f6 90E0      		ldi r25,hi8(.LC1)
+ 269 00f8 9F93      		push r25
+ 270 00fa 8F93      		push r24
+ 271 00fc 00D0      		rcall printf
+ 272               	.LM31:
+ 273 00fe 00D0      		rcall delay1s
+ 274 0100 0F90      		pop __tmp_reg__
+ 275 0102 0F90      		pop __tmp_reg__
+ 276               	.L18:
+ 277               	.LM32:
+ 278 0104 80E0      		ldi r24,lo8(0)
+ 279 0106 00D0      		rcall adc_start_conversion
+ 280               	.LBB32:
+ 281               	.LBB33:
+ 282               	.LBB34:
+ 283               	.LBB35:
+ 284               	.LM33:
+ 285 0108 00E6      		ldi r16,lo8(-5536)
+ 286 010a 1AEE      		ldi r17,hi8(-5536)
+ 287 010c C801      		movw r24,r16
+ 288               	.LVL7:
+ 289               	/* #APP */
+ 290 010e 0197      		1: sbiw r24,1
+ 291 0110 01F4      		brne 1b
+ 292               	/* #NOAPP */
+ 293               	.LBE35:
+ 294               	.LBE34:
+ 295               	.LBE33:
+ 296               	.LBE32:
+ 297               	.LM34:
+ 298 0112 81E0      		ldi r24,lo8(1)
+ 299               	.LVL8:
+ 300 0114 00D0      		rcall adc_start_conversion
+ 301               	.LBB36:
+ 302               	.LBB37:
+ 303               	.LBB38:
+ 304               	.LBB39:
+ 305               	.LM35:
+ 306 0116 C801      		movw r24,r16
+ 307               	/* #APP */
+ 308 0118 0197      		1: sbiw r24,1
+ 309 011a 01F4      		brne 1b
+ 310               	/* #NOAPP */
+ 311 011c 00C0      		rjmp .L18
+ 312               	.LBE39:
+ 313               	.LBE38:
+ 314               	.LBE37:
+ 315               	.LBE36:
+ 316               	/* epilogue: frame size=0 */
+ 317               	/* epilogue: noreturn */
+ 318               	/* epilogue end (size=0) */
+ 319               	/* function main size 28 (26) */
+ 320               	.LFE13:
+ 322               	.global	LDR
+ 323               		.section	.progmem.data,"a",@progbits
+ 326               	LDR:
+ 327 0000 4C44 523A 		.string	"LDR:"
+ 327      00
+ 328 0005 00        		.string	""
+ 329               	.global	POT
+ 332               	POT:
+ 333 0006 504F 543A 		.string	"POT:"
+ 333      00
+ 334 000b 00        		.string	""
+ 335               	.global	CLRROW
+ 338               	CLRROW:
+ 339 000c 2020 2020 		.string	"                "
+ 339      2020 2020 
+ 339      2020 2020 
+ 339      2020 2020 
+ 339      00
+ 340 001d 00        		.string	""
+ 341               	.global	LCDXY
+ 342               		.data
+ 345               	LCDXY:
+ 346 000c 0000      		.word	LDR
+ 347 000e 0000      		.word	POT
+ 350               	lcd_str:
+ 351 0010 0000 00   		.skip 3,0
+ 352 0013 02        		.byte	2
+ 353 0014 0000 0000 		.skip 4,0
+ 354 0018 0000      		.word	gs(LCDsendstream)
+ 355 001a 0000      		.word	0
+ 356 001c 0000      		.word	0
+ 357               		.comm ch,1,1
+ 430               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:2      *ABS*:0000003f __SREG__
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:3      *ABS*:0000003e __SP_H__
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:4      *ABS*:0000003d __SP_L__
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:5      *ABS*:00000000 __tmp_reg__
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:6      *ABS*:00000001 __zero_reg__
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:19     .text:00000000 adc_init
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:38     .text:0000000a adc_start_conversion
+                            *COM*:00000001 ch
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:68     .text:00000020 delay1s
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:108    .text:00000032 __vector_14
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:338    .progmem.data:0000000c CLRROW
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:345    .data:0000000c LCDXY
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:198    .text:000000c6 init
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:350    .data:00000010 lcd_str
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:233    .text:000000e6 LCDsendstream
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:257    .text:000000ee main
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:326    .progmem.data:00000000 LDR
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccSO2sEC.s:332    .progmem.data:00000006 POT
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+CopyStringtoLCD
+printf
+__iob
+LCDinit
+LCDclr
+LCDGotoXY
+LCDsendChar

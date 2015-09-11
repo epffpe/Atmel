@@ -1,0 +1,8 @@
+Address = 0x00000056  File:line:col:begin = D:\Designs\Atmel\MezclaCasm/MezclaCasm.c:11:0:-1
+Address = 0x00000058  File:line:col:begin = D:\Designs\Atmel\MezclaCasm/MezclaCasm.c:13:0:-1
+Address = 0x0000005e  File:line:col:begin = D:\Designs\Atmel\MezclaCasm/MezclaCasm.c:15:0:-1
+Address = 0x00000060  File:line:col:begin = D:\Designs\Atmel\MezclaCasm/MezclaCasm.c:21:0:-1
+Address = 0x00000066  File:line:col:begin = D:\Designs\Atmel\MezclaCasm/MezclaCasm.c:23:0:-1
+Address = 0x00000068  File:line:col:begin = D:\Designs\Atmel\MezclaCasm/MezclaCasm.c:25:0:-1
+Address = 0x0000006c  File:line:col:begin = D:\Designs\Atmel\MezclaCasm/MezclaCasm.c:27:0:-1
+Address = 0x00000070  File:line:col:begin = D:\Designs\Atmel\MezclaCasm/MezclaCasm.c:27:0:-1

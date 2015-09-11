@@ -1,0 +1,545 @@
+<html>
+<head>
+<title>Release notes</title>
+</head>
+
+<style>
+  H2, H3, H4 { color: blue }
+  H1, H2, H3, H4, H5 { font-family: Arial, Helvetica, sans-serif;}
+  PRE {  color: black;  margin-left: 2%; }
+  BODY { color: black;  margin-left: 2%; font-family: Verdana, Arial, Helvetica, sans-serif; font-size=75%}
+  table{ color: black;  font-family: Verdana; font-size=100%}
+  .maintext {
+	  font-size: 10px;
+	  color: #000000;
+	  margin-left: 20px;
+	  margin-right: 20px;
+  }
+  h1.newsbox {
+	  color: #FFFFFF;
+	  font-weight: bold;
+	  font-size: 13px;
+	  padding-left: 10px;
+	  background: #526194 no-repeat right;
+	  border: thin solid #000000;
+	  margin-right: 5px;
+	  margin-left: 5px;
+  }
+  .heading2 {
+	  color: #336699;
+	  font-weight: bold;
+	  font-size: 12px;
+	  padding-left: 25px;
+  }
+</style>
+
+<body bgcolor="#FFFFFF">
+
+<h3>Release notes for embOS 3.84 for Atmel AVR and IAR compiler</h3>
+<!--  ****** Modifiable information starts here ******** -->
+      <ol class="maintext">
+        <li><A HREF="#toolchain">Tool chain used for build</A> </li>
+        <li><A HREF="#features">New features</A> </li>
+        <li><A HREF="#improvements">Improvements</A> </li>
+        <li><A HREF="#pcorr">Program corrections</A> </li>
+        <li><A HREF="#problems">Known problems/limitations</A> </li>
+        <li><A HREF="#history">Release history</A> </li>
+        <li><A HREF="#misc">Miscellaneous</A> </li>
+      </ol>
+      <!-- ****************************************************************** -->
+      <!-- TOOL CHAIN (Compiler) Information                                  -->
+      <!-- ****************************************************************** -->
+      <h1 class="newsbox"><a name="toolchain">Tool chain used for build</a></h1>
+      <p class="maintext">The following tools have been used:</p>
+      <pre class="maintext">
+Compiler:  IAR ICCAVR   V5.51.0
+Assembler: IAR AAVR     V5.51.0
+Librarian: IAR XLIB     V4.61L
+Workbench: IAR IarIdePm V5.6.5
+      </pre>
+      <!-- ****************************************************************** -->
+      <!-- PERFORMANCE                                                        -->
+      <!-- ****************************************************************** -->
+      <h1 class="newsbox"><a name="Performance">Performance</a></h1>
+      <pre class="maintext">
+Release build, small memory model
+Task switch time:  362 cycles = 90.5 us (@4MHz)
+Interrupt latency: 136 cycles = 34.0 us (@4MHz)
+
+Stack check build with profiling, small memory model
+Task switch time:  402 cycles = 100.5 us (@4MHz)
+with profiling:    915 cycles = 228.7 us (@4MHz)
+Interrupt latency: 136 cycles =  34.0 us (@4MHz)
+      </pre>
+      <!-- ****************************************************************** -->
+      <!-- NEW FEATURES                                                       -->
+      <!-- ****************************************************************** -->
+      <h1 class="newsbox"><a name="features"></a>New features</h1>
+      <h2 class="heading2">Version 3.84</h2>
+      <ol class="maintext">
+        <li>Update to embOS generic sources V3.84.</li>
+        <li>BSP for ATXmega128 added.</li>
+      </ol>
+      <h2 class="heading2">Version 3.32m</h2>
+      <ol class="maintext">
+        <li>embOS heap memory functions added.</li>
+        <li>Update to embOS generic sources V3.32m.</li>
+      </ol>
+      <h2 class="heading2">Version 3.32d3</h2>
+      <ol class="maintext">
+        <li>embOS now comes also with libraries for AVR v6 CPUs, option -v6 of IAR compiler</li>
+      </ol>
+      <h2 class="heading2">Version 3.32d2</h2>
+      <ol class="maintext">
+        <li>Update to new IAR embedded workbench<br>
+          The start projects were updated to the new IAR embedded Worbench V.5.7 and the new compiler V5.40.
+        </li>
+        <li>New embOS pulgin V3.82.2 delivered with embOS<br>
+          embOS now comes with the new embOS plugin which runs under the new IAR embedde workbench.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.32c</h2>
+      <ol class="maintext">
+        <li>OS_EVENT_WaitTimed() implemented<br>
+          New event object function to wait for an event with a timeout limit.
+        </li>
+        <li>ATmega2561 supported<br>
+          embOS now comes with a sample project for ATmega2561 CPU which is prepared to run in CSpy simulator.
+        </li>
+        <li>Additional libraries for CPU variant 5.<br>
+          embOS now comes with libraries for CPUs with 24bit code address width, option -v5 of IAR compiler.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.32b</h2>
+      <ol class="maintext">
+        <li>Task context modified for debug builds<br>
+          The number of task activations is now part of the task context in debug builds.<br>
+          The number of activations are therefore displayed in the task list window of embOS plugin, when an embOS debug library is used.<br>
+          Previous versions of embOS showed this information in profiling builds only.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.32a</h2>
+      <ol class="maintext">
+        <li>A parameter may be passed to a task function<br>
+          Using the new embOS functions OS_CREATETASK_EX() or OS_CreateTasEx() allows to pass a void pointer as parameter to a task.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.32</h2>
+      <ol class="maintext">
+        <li>Event objects introduced<br>
+          Event objects are standalone objects which are not assigned to a specific task.<br>
+          Event objects may be used to synchronize one or multiple task to a specific event.<br>
+          Events can be triggered from a task, a timer, or an interrupt handler.
+        </li>
+        <li>embOS stack check modified<br>
+          The internal stack check of embOS, used in stack check or debug builds, was modified to avoid some problems with IARs stack check plugin for CSPy.<br>
+          Now embOS uses the same character for stack check as the stck check plugin from IAR.<br>
+          This ensures, IARs stack check plugin will show correct level of CSTACK and IRQ_STACK usage.<br>
+        </li>
+        <li>embOS IAR kernel awareness plugin updated<br>
+          Modified stack check version of embOS required a modified embOS plugin for IAR CSpy.<br>
+          The new Plugin, version 1.00e, can handle both versions of embOS stack check methods, the previous version, and the new one, which uses a different stack check character.<br>
+          The previous embOS Plugin now does not show correct values for task stack usage.<br>
+          To replace the older plugin, please follow the instructions in the embOS plugin documentation. 
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.30a</h2>
+      <ol class="maintext">
+        <li>embOS internal time handling modified to allow long delays<br>
+          For 8- and 16-bit CPUs the maximum range for delays and timer periods is limited to 32767 embOS timer ticks, because time comparison ist done by integer calculation.<br>
+          By recompiling sources with datatype OS_TIME defined as signed long, longer delays and timer periods up to 2147483647 ticks can be realized.<br>
+          The embOS libraries of object versions for 8- and 16-bit CPUs are still delivered with the limitation to 32767 timer ticks.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.28p</h2>
+      <ol class="maintext">
+        <li>New error handling for version without round robin scheduling<br>
+          In debug versions of embOS, OS_Error() is called with error code OS_ERR_TASK_PRIORITY, if a task is created with a priority which is already assigned to an other task.<br>
+          OS_Error() is also called with the same errorcode, if a task priority is assigned by call of OS_SetPriority() and the new priority is already assigned to an other task.<br>
+          Round robin switching can be disabled by recompiling sources with OS_RR_SUPPORTED defined as 0.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.28l</h2>
+      <ol class="maintext">
+        <li>OS_SignalCSemaMax()<br>
+          New counting semaphore handling function which specifies a maximum count value.<br>
+          This allows counting semaphores used as binary semaphores.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.28k</h2>
+      <ol class="maintext">
+        <li>embOS awareness Plugin for IAR CSpy<br>
+          A new plugin for IAR CSPy which shows information about tasks, system variables, mailboxes, timers and semaphores is delivered with embOS.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.28i</h2>
+      <ol class="maintext">
+        <li>OS_DeleteRSema()<br>
+          New resource semaphore handling function allows to delete resource semaphores during runtime.<br>
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.28h</h2>
+      <ol class="maintext">
+        <li>Additional error checks in debug builds of embOS<br>
+          OS_CreateRSema() now generates an error, when the addressed resource semaphore was already created before.<br>
+          OS_CreateCSema() now generates an error, when the addressed counting semaphore was already created before.<br>
+          OS_CreateMB() now generates an error, when the mailbox was already created before.<br>
+          OS_CreateTimer() now generates an error, when the software timer was already created before.<br>
+          OS_MEMF_Create() now generates an error, when the addressed fixed size memory pool was already created before.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.28g</h2>
+      <ol class="maintext">
+        <li>OS_GetSuspendCnt()<br>
+          New info function to examine suspension state and count of a task.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.26</h2>
+      <ol class="maintext">
+        <li>OS_Terminate() modified<br>
+          Task may be terminated anytime, regardless of task state.<br>
+          All resources claimed by the terminated task are automatically released.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.24</h2>
+      <ol class="maintext">
+        <li>OS_PutMailFront() / OS_PutMailFront1<br>
+          New mailbox functions to enable LIFO behavior of mailboxes.
+        </li>
+        <li>OS_PutMailFrontCond() / OS_PutMailFrontCond1()<br>
+          New conditional mailbox functions to enable LIFO behavior of mailboxes.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.20g</h2>
+      <ol class="maintext">
+        <li>Small Flash derivates supported<br>
+        Since version 3.20g, embOS for AVR is delivered with additional libraries for CPU derivates with small flash memory.<br>
+        This enables usage of embOS with ATmega64 or smaller derivates.</li>
+      </ol>
+      <h2 class="heading2">Version 3.20</h2>
+      <ol class="maintext">
+        <li>OS_Suspend() / OS_Resume() implemented<br>
+        New functions to suspend and resume tasks unconditionally.<br></li>
+        <li>Fixed size memory blocks implemeted<br>
+        New functions to allocate fixed size memory blocks from embOS.</li>
+      </ol>
+      <h2 class="heading2">Version 3.10k</h2>
+      <ol class="maintext">
+        <li>OS_GetMailTimed()
+        <br>
+        New mailbox retrieval function with timeout.</li>
+      </ol>
+      <h2 class="heading2">Version 3.10d</h2>
+      <ol class="maintext">
+        <li>OS_GetpCurrentTimer()
+        <br>
+        New info routine. May be used in timer callback routines to examine which
+        timer expired.</li>
+        <li>OS_GetpCurrentTask()
+        <br>
+        New info routine. May be used to examine current running task.</li>
+      </ol>
+      <h2 class="heading2">Version 3.10</h2>
+      <ol class="maintext">
+        <li>Data format for communication with embOSView modified
+        <br>
+        For terminal I/O in embOSView, the data format was changed. Therefore
+        embOSView V3.10 or later is required.</li>
+        <li>OS_WaitSingleEvent()
+        <br>
+        Unmasked events remain unchanged when function returns.</li>
+        <li>OS_WaitSingleEventTimed()
+        <br>
+        Unmasked events remain unchanged when function returns. Timeout for waiting
+        can be specified.</li>
+      </ol>
+      <h2 class="heading2">Version 3.08a</h2>
+      <ol class="maintext">
+        <li>Support for ATmega128
+        <br>
+        Internal data structures modified to support ATmega128.</li>
+        <li>Message Queue functionality enhanced
+        <br>
+        OS_Q_GetPtrCond() function enables conditional request of data from Queue
+        without task suspension.<br>
+        OS_Q_GetMessageCnt() functions delivers number of messages in the queue.</li>
+      </ol>
+      <h2 class="heading2">Version 3.08</h2>
+      <ol class="maintext">
+        <li>Message Queues
+        <br>
+        Message queues enable intertask communication with messages of various
+        size.</li>
+      </ol>
+      <!-- ****************************************************************** -->
+      <!-- Improvements                                                       -->
+      <!-- ****************************************************************** -->
+      <h1 class="newsbox"><a name="improvements"></a>Improvements</h1>
+      <h2 class="heading2">Version 3.32d2</h2>
+      <ol class="maintext">
+        <li>Some warnings eliminated in source builds<br>
+          Previous versions of embOS for AVR generated some warnings and remarks when the embOS sources were compiled.<br>
+          Adding some CPU specific type definitons solved the problem, embOS now compiles without warnings.
+        </li> 
+      </ol>
+      <h2 class="heading2">Version 3.28n</h2>
+      <ol class="maintext">
+        <li>embOS round-robin scheduling may be disabled.<br>
+          Round-robin scheduling may be disabled by recompiling sources with OS_RR_SUPPORTED defined as 0.<br>
+          This will save some bytes of RAM and ROM and may make sense for small CPUs.
+        </li> 
+      </ol>
+      <h2 class="heading2">Version 3.28g</h2>
+      <ol class="maintext">
+        <li>embOS scheduling simplified<br>
+          Task activation and deactivation on "waitable objects" as mailboxes, semaphores, events, fixed size memory blocks now all use the same scheduling method.<br>
+          This modification saves ROM and RAM and makes scheduler easier to understand and to maintain.<br>
+          Applications which accessed internal data structures of waitable objects directly have to be modified.
+        </li> 
+      </ol>
+      <h2 class="heading2">Version 3.10f</h2>
+      <ol class="maintext">
+        <li>Memory requirements reduced
+        <br>
+        Granularity enhanced for non embOSView builds to save ROM and RAM</li>
+      </ol>
+      <!-- ****************************************************************** -->
+      <!-- PROGRAM CORRECTIONS                                                -->
+      <!-- ****************************************************************** -->
+      <h1 class="newsbox"><a name="pcorr"></a>Program corrections</h1>
+      <h2 class="heading2">Version 3.32d1</h2>
+      <ol class="maintext">
+        <li>OS_CreateTask() for ATmega256x corrected.<br>
+          OS_CreateTask() did not inintialize the task control structure correctly for CPUs with extended programm memory range.<br>
+          If the start address of the task function was located at an address higher than 0x20000, the task was not started, the system crashed.<br>
+          If the scheduler itself was located above a start addess of 0x20000, the system also crashed when starting a task.
+          This bug existed in all previous versions of the rtos5S libraries and is fixed with version 3.32d1 of embOS for AVR.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.32a</h2>
+      <ol class="maintext">
+        <li>embOSView corrected.<br>
+          embOSView sometimes showed wrong task state "Terminated" for tasks which were not terminated.<br>
+          This bug existed in all previous versions of emBOSView and is fixed with version 3.32a.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.30d</h2>
+      <ol class="maintext">
+        <li>OS_MEMF_Create() corrected.<br>
+          Alignment check of buffers for fixed size memory blocks did not work correctly in debug libraries of embOS.<br>
+          OS_Error() was called during OS_MEMF_Create(), even though the memory pool buffers start address was correctly aligned.<br>
+          This problem existed since embOS version 3.28m in all debug build libraries and is fixed with version 3.30d.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.30b</h2>
+      <ol class="maintext">
+        <li>OS_Suspend() corrected.<br>
+          OS_Suspend() did not work correctly, when an activated task with higher priority than the running task was suspended.<br>
+          When the task with highest priority was suspended during system initialization before embOS was started,
+          embOS crashed during the call of OS_Start(),
+          or called the embOS error handler OS_Error() with error code OS_ERR_INV_TASK (128).<br>
+          The same crash occured, when the application was running in a critical region and a task with higher priority was activated,
+          but not started because of the critical region, and was then suspended by a call of OS_Suspend().<br>
+          This problem existed in all previous embOS versions and is fixed with version 3.30b.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.28q</h2>
+      <ol class="maintext">
+        <li>Problem with suspended tasks which were on delay fixed.<br>
+          If a task which was on delay was suspended, the delay timer for that task was not handled.<br>
+          This might have resulted in additional longer delay when the task was resumed later.<br>
+          This problem existed in all previous embOS versions and is fixed with version 3.28q.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.28p</h2>
+      <ol class="maintext">
+        <li>OS_Suspend() corrected.<br>
+          OS_Suspend() did not work correctly, when the current task was suspended from within an interrupt handler, or from a critical region.<br>
+          The application crashed, or called the embOS error handler OS_Error() with error code OS_ERR_INV_TASK (128).<br>
+          As OS_Suspend() automatically enters a critical region in debug-trace builds, OS_Suspend() also failed, when it was called to suspend the current task in debug-trace builds of embOS.<br>
+          This problem existed in all previous embOS versions and is fixed with version 3.28p.
+        </li>
+      </ol>
+      <ol class="maintext">
+        <li>Alignment problems fixed for fixed size memeory blocks<br>
+          Some CPUs, mainly the 32bit RISC types, require aligned buffer start addresses for fixed size memory pools.<br>
+          The debug version of embOS now checks alignment of buffer start address and data blocks in the buffer.
+          If data blocks and buffer start address is not aligned, an error is generated and embOS error handler is called during creation of a fixed size memory pool.<br>
+          This problem existed in all previous embOS versions and is fixed with version 3.28m.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.28l</h2>
+      <ol class="maintext">
+        <li>OS_MEMF_Free() added<br>
+          The function OS_MEMF_Free() was not included in embOS libraries, but was documented in embOS users manual and was also declared in RTOS.h.<br>
+          This problem existed in all previous embOS versions and is fixed with version 3.28l.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.28k</h2>
+      <ol class="maintext">
+        <li>OS_MEMF_IsInPool() corrected<br>
+          OS_MEMF_IsInPool() failed, if a pointer was checked which pointed to the first address after the memory pool.
+          This pointer was reported as belonging to the pool.<br>
+          This problem existed in all previous embOS versions and is fixed with 
+          version 3.28g.
+        </li>
+      </ol>  
+      <h2 class="heading2">Version 3.28g</h2>
+      <ol class="maintext">
+        <li>OS_WakeTask() for trace build corrected<br>
+          OS_WakeTask() in trace build disabled task switches.<br>
+          This problem existed since version 3.24 and is fixed with 
+          version 3.28g.
+        </li> 
+        <li>OS_GetMailTimed() / mailbox handling corrected<br>
+          During call of OS_GetMailTimed, interrupts were re-enabled too early. If a mail was just put into a mailbox and the timeout occured at the same time, a mailbox internal control variables which managed waiting tasks was set to a wrong value.<br>
+          This resulted in wrong mailbox handling and caused task waiting for mail kept suspended, even though, mail was available. 
+          This problem existed in all previous versions of embOS and is fixed with version 3.28g.
+        </li>
+      </ol>
+      <h2 class="heading2">Version 3.26a</h2>
+      <ol class="maintext">
+        <li>OS_MEMF_Release() corrected<br>
+          OS_MEMF_Release() might have failed according to absolute address of memory block.<br>
+          The problem occured because address calculation was done with 16bit interger value.<br>
+          Calculation was modified to use 32bit values to fix the problem.
+        </li>
+      </ol>  
+      <h2 class="heading2">Version 3.26</h2>
+      <ol class="maintext">
+        <li>OS_GetTime() corrected<br>
+        OS_GetTime() enabled interrupts in previous versions. This could block software timers on slow systems.<br>
+        Corrected with version 3.26 of embOS.<br>
+        This problem exists in all previous embOS versions and is fixed with version 3.20c.</li>
+      </ol>
+      <h2 class="heading2">Version 3.20c</h2>
+      <ol class="maintext">
+        <li>OS_GetMailTimed() corrected<br>
+        OS_GetMailTimed () did not retrieve a mail after 256 calls, the waiting task remained suspended.
+        Corrected with version 3.20c of embOS.<br>
+        This problem exists in all previous embOS versions and is fixed with version 3.20c.</li>
+      </ol>
+      <h2 class="heading2">Version 3.10p</h2>
+      <ol class="maintext">
+        <li>GetMail functions corrected<br>
+        Internal functions for retrieving mail from a mailbox did not disable interrupts.
+        This could cause message losses, when mail was written into mailboxes from within interrupt handlers.<br>
+        This problem exists in all previous embOS versions and is fixed with version 3.10p.</li>
+      </ol>
+      <h2 class="heading2">Version 3.10n</h2>
+      <ol class="maintext">
+        <li>UDATAx segments removed
+        <br>
+        To be compatible with newer version of IAR compiler/linker, the UDATA0
+        segment, previously used for embOS internal data, is now replaced by segment
+        NEAR_Z.</li>
+      </ol>
+      <!-- ****************************************************************** -->
+      <!-- KNOWN PROBLEMS                                                     -->
+      <!-- ****************************************************************** -->
+      <h1 class="newsbox"><a name="problems"></a>Known problems/limitations</h1>
+      <p class="maintext">Only small memory model supported</p>
+      <h2 class="heading2">Version 3.10n</h2>
+      <ol class="maintext">
+        <li>IAR ICCA90 compiler no longer supported
+        <br>
+        Current version of embOS AVR is designed for current IAR AVR compiler.
+        A version for older IAR compiler ICCA90 can not be delivered.</li>
+      </ol>
+      <!-- ****************************************************************** -->
+      <!-- Release history                                                    -->
+      <!-- ****************************************************************** -->
+      <h1 class="newsbox"><a name="history"></a>Release history</h1>
+      <table class="maintext">
+        <tr>
+          <td width=20%>Version</td>
+          <td width=30%>Release date</td>
+          <td>Short explanation</td>
+        </tr>
+        <tr>
+           <td>V3.84</td>
+           <td>11. Oct 2011</td>
+           <td>Update to embOS generic sources V3.84.<br>
+           BSP for ATXmega128 added.
+           </td>
+        </tr>
+        <tr>
+           <td>V3.32m</td>
+           <td>26. Oct 2010</td>
+           <td>embOS heap memory functions added.<br>
+             Update to embOS generic sources V3.32m.
+           </td>
+        </tr>
+        <tr>
+           <td>V3.32d3</td>
+           <td>27. May 2010</td>
+           <td>embOS AVR v6 libraries added.</td>
+        </tr>
+        <tr>
+           <td>V3.32d2</td>
+           <td>21. Dec 2009</td>
+           <td>Update to new IAR compiler V5.40</td>
+        </tr>
+        <tr>
+           <td>V3.32c</td>
+           <td>20. Oct 2006</td>
+           <td>Update to new embOS sources V3.32c</td>
+        </tr>
+        <tr>
+           <td>V3.28h</td>
+           <td>02. Sep 2005</td>
+           <td>Update to new embOS sources V3.28h</td>
+        </tr>
+        <tr>
+           <td>V3.26.1</td>
+           <td>29. Aug 2005</td>
+           <td>Update for IAR compiler 4.11A</td>
+        </tr>
+        <tr>
+           <td>V3.26</td>
+           <td>15. Mar 2005</td>
+           <td>Update to IAR compiler 4.10B, embOS sources 3.26</td>
+        </tr>
+        <tr>
+           <td>V3.24</td>
+           <td>14. Dec 2004</td>
+           <td>Update to IAR compiler 3.20, embOS sources 3.24</td>
+        </tr>
+        <tr>
+           <td>V3.20g</td>
+           <td>15. Jun 2004</td>
+           <td>'Small Flash'-derivates supported</td>
+        </tr>
+        <tr>
+           <td>V3.20f</td>
+           <td>03. Jun 2004</td>
+           <td>Update to new embOS sources 3.20f and new IAR compiler version 3.10</td>
+        </tr>
+        <tr>
+          <td>V3.10n</td>
+          <td>25. Feb 2003</td>
+          <td>V3.10n Update to new version 3.10</td>
+        </tr>
+        <tr>
+          <td>V3.08d</td>
+          <td>25. Jun 2002</td>
+          <td>V3.08d Initial release for AVR compiler</td>
+        </tr>
+      </table>
+      <!-- ****************************************************************** -->
+      <!-- MISCELLANEOUS                                                      -->
+      <!-- ****************************************************************** -->
+      <h1 class="newsbox"><a name="misc"></a>Miscellaneous</h1>
+      <p class="maintext">This document was first released with version 3.08b of
+        the software.<br>
+        Software released earlier is documented internally. This information is 
+        available at request.
+      </p>
+<!-- ****** Modifiable information ends here ******** -->
+<hr>
+<p class="maintext">
+Copyright 2001-2011 SEGGER Microcontroller GmbH &amp; Co. KG. All rights reserved.<br>
+For more information, please visit our website <a href ="http://www.segger.com/">www.segger.com</a> or contact us at <a href ="mailto:info@segger.com">info@segger.com</a><br>
+</p>
+</body>
+</html>

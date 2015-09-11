@@ -1,0 +1,54 @@
+/*  lnk3s4kb.xcl   --- by SEGGER microcontroller
+    This file has been rewritte, as we found the original from
+    IAR to have a problem. (It included the C-library as
+    conditional, which meant that the startup was missing */
+
+-ca90         //  First define CPU
+
+/*
+   Select reduced "printf" support to reduce library size.
+   See configuration section in manual concerning printf/sprintf.
+*/
+
+-D_..X_HEAP_SIZE=1000   /* 4096 bytes of heap. */
+
+-e_small_write=_formatted_write
+-e_small_write_P=_formatted_write_P
+
+/*
+   Disable floating-point support in "scanf" to reduce library size.
+   See configuration section in manual concerning scanf/sscanf
+*/
+
+-e_medium_read=_formatted_read
+-e_medium_read_P=_formatted_read_P
+
+// Program address space (internal Flash memory)
+-Z(CODE)INTVEC=0-5F
+-Z(CODE)RCODE,CDATA0,CDATA1,CCSTR,SWITCH,FLASH=60-FFFF
+-Z(CODE)CODE=60-1FFFF
+
+-Z(DATA)NEAR_Z,NEAR_I,NEAR_N=100-FFF
+-Z(DATA)IDATA0=100-FFF
+
+-Z(DATA)RSTACK+40,CSTACK+c0,IDATA1,UDATA1,ECSTR,NO_INIT=100-FFF
+-w29
+
+-Z(CODE)TINY_ID,NEAR_ID=60-1FFFF
+
+-Z(CODE)INITTAB=60-FFFF
+
+
+-Z(DATA)HEAP+_..X_HEAP_SIZE=60-FFFF
+//-Z(DATA)NEAR_HEAP+_..X_NEAR_HEAP_SIZE=60-FFFF
+
+/*
+   Data address space
+   The registers are in 0-5F and memory mapped I/O in 20-5F
+   To be used with ATmega128, Data area starts at 100h
+*/
+
+
+/* cl3s */
+
+

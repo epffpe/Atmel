@@ -1,0 +1,2 @@
+@ECHO OFF
+"C:\Archivos de programa\Atmel\AVR Tools\AvrAssembler2\avrasm2.exe" -S "D:\Designs\Atmel\Prueba_timers\labels.tmp" -fI -W+ie -o "D:\Designs\Atmel\Prueba_timers\Prueba_timers.hex" -d "D:\Designs\Atmel\Prueba_timers\Prueba_timers.obj" -e "D:\Designs\Atmel\Prueba_timers\Prueba_timers.eep" -m "D:\Designs\Atmel\Prueba_timers\Prueba_timers.map" "D:\Designs\Atmel\Prueba_timers\Prueba_timers.asm"

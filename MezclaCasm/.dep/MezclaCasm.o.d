@@ -1,0 +1,1 @@
+MezclaCasm.o: MezclaCasm.c

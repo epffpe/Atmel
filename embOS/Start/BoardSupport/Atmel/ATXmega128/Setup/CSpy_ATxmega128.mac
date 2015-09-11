@@ -1,0 +1,14 @@
+//
+// CSpy_ATxmega128.mac
+// Interrupt simulation for embOS timer tick
+//
+
+execUserSetup()
+{
+  __message "CSpy_ATXmega128.mac: execUserSetup()";
+  __disableInterrupts();
+  __cancelAllInterrupts();
+  __orderInterrupt ("TCC0 CCA", 50000, 5000, 0, 0, 100);
+  __enableInterrupts();
+  __message "embOS: Generating timer0 compare interrupts every 5000 cycles\n";
+}

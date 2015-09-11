@@ -1,0 +1,14 @@
+//
+// CSpy_ATmega2561.mac
+// Interrupt simulation for embOS timer tick
+//
+
+execUserSetup()
+{
+  __message "CSpy_ATmega2561.mac: execUserSetup()";
+  __disableInterrupts();
+  __cancelAllInterrupts();
+  __orderInterrupt ("TIMER3 COMPA", 50000, 5000, 0, 0, 100);
+  __enableInterrupts();
+  __message "CSpy_ATmega2561.mac: Simulating OS timer interrupt TIMER3 COMPA";  
+}

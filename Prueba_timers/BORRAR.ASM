@@ -1,0 +1,18 @@
+.include "m48def.inc"	
+.ORG 0x30
+MATES:
+	PUSH	R16
+	LDI		R16, 31
+	LDI		R17, 2
+	LDI		R18, -2
+	MUL		R16, R17
+	MULS	R16, R18
+	MULSU	R18, R16
+	FMUL	R16, R17
+	;FMULS	
+	;FMULSU
+	POP		R16
+	RET
+
+LOOP:
+	RJMP	LOOP

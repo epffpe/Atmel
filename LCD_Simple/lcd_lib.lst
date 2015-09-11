@@ -1,0 +1,1383 @@
+   1               		.file	"lcd_lib.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.global __do_copy_data
+   8               		.global __do_clear_bss
+  10               		.text
+  11               	.Ltext0:
+  87               	.global	LCDsendChar
+  89               	LCDsendChar:
+   1:lcd_lib.c     **** //*****************************************************************************
+   2:lcd_lib.c     **** //
+   3:lcd_lib.c     **** // File Name	: 'lcd_lib.c'
+   4:lcd_lib.c     **** // Title		: 8 and 4 bit LCd interface
+   5:lcd_lib.c     **** // Author		: Scienceprog.com - Copyright (C) 2007
+   6:lcd_lib.c     **** // Created		: 2007-03-29
+   7:lcd_lib.c     **** // Revised		: 2007-08-08
+   8:lcd_lib.c     **** // Version		: 1.0
+   9:lcd_lib.c     **** // Target MCU	: Atmel AVR series
+  10:lcd_lib.c     **** //
+  11:lcd_lib.c     **** // This code is distributed under the GNU Public License
+  12:lcd_lib.c     **** //		which can be found at http://www.gnu.org/licenses/gpl.txt
+  13:lcd_lib.c     **** //
+  14:lcd_lib.c     **** //*****************************************************************************
+  15:lcd_lib.c     **** #include "lcd_lib.h"
+  16:lcd_lib.c     **** #include <inttypes.h>
+  17:lcd_lib.c     **** #include <avr/io.h>
+  18:lcd_lib.c     **** #include <avr/pgmspace.h>
+  19:lcd_lib.c     **** #include <util/delay.h>
+  20:lcd_lib.c     **** 
+  21:lcd_lib.c     **** const uint8_t LcdCustomChar[] PROGMEM=//define 8 custom LCD chars
+  22:lcd_lib.c     **** {
+  23:lcd_lib.c     **** 	0x00, 0x1F, 0x00, 0x00, 0x00, 0x00, 0x1F, 0x00, // 0. 0/5 full progress block
+  24:lcd_lib.c     **** 	0x00, 0x1F, 0x10, 0x10, 0x10, 0x10, 0x1F, 0x00, // 1. 1/5 full progress block
+  25:lcd_lib.c     **** 	0x00, 0x1F, 0x18, 0x18, 0x18, 0x18, 0x1F, 0x00, // 2. 2/5 full progress block
+  26:lcd_lib.c     **** 	0x00, 0x1F, 0x1C, 0x1C, 0x1C, 0x1C, 0x1F, 0x00, // 3. 3/5 full progress block
+  27:lcd_lib.c     **** 	0x00, 0x1F, 0x1E, 0x1E, 0x1E, 0x1E, 0x1F, 0x00, // 4. 4/5 full progress block
+  28:lcd_lib.c     **** 	0x00, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x00, // 5. 5/5 full progress block
+  29:lcd_lib.c     **** 	0x03, 0x07, 0x0F, 0x1F, 0x0F, 0x07, 0x03, 0x00, // 6. rewind arrow
+  30:lcd_lib.c     **** 	0x18, 0x1C, 0x1E, 0x1F, 0x1E, 0x1C, 0x18, 0x00  // 7. fast-forward arrow
+  31:lcd_lib.c     **** };
+  32:lcd_lib.c     **** 
+  33:lcd_lib.c     **** 
+  34:lcd_lib.c     **** void LCDsendChar(uint8_t ch)		//Sends Char to LCD
+  35:lcd_lib.c     **** {
+  90               	ize=0) */
+  92               	.LM1:
+  93               		out 50-0x20,r24
+  36:lcd_lib.c     **** 
+  37:lcd_lib.c     **** #ifdef LCD_4bit
+  38:lcd_lib.c     **** 	//4 bit part
+  39:lcd_lib.c     **** 	LDP=(ch&0b11110000);
+  40:lcd_lib.c     **** 	LCP|=1<<LCD_RS;
+  41:lcd_lib.c     **** 	LCP|=1<<LCD_E;		
+  42:lcd_lib.c     **** 	_delay_ms(1);
+  43:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);	
+  44:lcd_lib.c     **** 	LCP&=~(1<<LCD_RS);
+  45:lcd_lib.c     **** 	_delay_ms(1);
+  46:lcd_lib.c     **** 	LDP=((ch&0b00001111)<<4);
+  47:lcd_lib.c     **** 	LCP|=1<<LCD_RS;
+  48:lcd_lib.c     **** 	LCP|=1<<LCD_E;		
+  49:lcd_lib.c     **** 	_delay_ms(1);
+  50:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);	
+  51:lcd_lib.c     **** 	LCP&=~(1<<LCD_RS);
+  52:lcd_lib.c     **** 	_delay_ms(1);
+  53:lcd_lib.c     **** #else
+  54:lcd_lib.c     **** 	//8 bit part
+  55:lcd_lib.c     **** 	LDP=ch;
+  95               	
+  96               		sbi 56-0x20,0
+  56:lcd_lib.c     **** 	LCP|=1<<LCD_RS;
+  98               	M3:
+  99               		sbi 56-0x20,2
+ 100 0002 C09A      	.LBB30:
+  57:lcd_lib.c     **** 	LCP|=1<<LCD_E;		
+ 101               	B31:
+ 102               	.LBB32:
+ 103 0004 C29A      	.LBB33:
+ 105               	.Ltext1:
+ 107               	.LM4:
+ 108               		ldi r24,lo8(1000)
+ 109               		ldi r25,hi8(1000)
+   1:c:/winavr/bin/../avr/include/util/delay_basic.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:c:/winavr/bin/../avr/include/util/delay_basic.h ****    Copyright (c) 2007 Joerg Wunsch
+   3:c:/winavr/bin/../avr/include/util/delay_basic.h ****    All rights reserved.
+   4:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+   5:c:/winavr/bin/../avr/include/util/delay_basic.h ****    Redistribution and use in source and binary forms, with or without
+   6:c:/winavr/bin/../avr/include/util/delay_basic.h ****    modification, are permitted provided that the following conditions are met:
+   7:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+   8:c:/winavr/bin/../avr/include/util/delay_basic.h ****    * Redistributions of source code must retain the above copyright
+   9:c:/winavr/bin/../avr/include/util/delay_basic.h ****      notice, this list of conditions and the following disclaimer.
+  10:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  11:c:/winavr/bin/../avr/include/util/delay_basic.h ****    * Redistributions in binary form must reproduce the above copyright
+  12:c:/winavr/bin/../avr/include/util/delay_basic.h ****      notice, this list of conditions and the following disclaimer in
+  13:c:/winavr/bin/../avr/include/util/delay_basic.h ****      the documentation and/or other materials provided with the
+  14:c:/winavr/bin/../avr/include/util/delay_basic.h ****      distribution.
+  15:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  16:c:/winavr/bin/../avr/include/util/delay_basic.h ****    * Neither the name of the copyright holders nor the names of
+  17:c:/winavr/bin/../avr/include/util/delay_basic.h ****      contributors may be used to endorse or promote products derived
+  18:c:/winavr/bin/../avr/include/util/delay_basic.h ****      from this software without specific prior written permission.
+  19:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  20:c:/winavr/bin/../avr/include/util/delay_basic.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  21:c:/winavr/bin/../avr/include/util/delay_basic.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  22:c:/winavr/bin/../avr/include/util/delay_basic.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  23:c:/winavr/bin/../avr/include/util/delay_basic.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  24:c:/winavr/bin/../avr/include/util/delay_basic.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  25:c:/winavr/bin/../avr/include/util/delay_basic.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  26:c:/winavr/bin/../avr/include/util/delay_basic.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  27:c:/winavr/bin/../avr/include/util/delay_basic.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  28:c:/winavr/bin/../avr/include/util/delay_basic.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  29:c:/winavr/bin/../avr/include/util/delay_basic.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  30:c:/winavr/bin/../avr/include/util/delay_basic.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  31:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  32:c:/winavr/bin/../avr/include/util/delay_basic.h **** /* $Id: delay_basic.h,v 1.1 2007/05/13 21:23:20 joerg_wunsch Exp $ */
+  33:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  34:c:/winavr/bin/../avr/include/util/delay_basic.h **** #ifndef _UTIL_DELAY_BASIC_H_
+  35:c:/winavr/bin/../avr/include/util/delay_basic.h **** #define _UTIL_DELAY_BASIC_H_ 1
+  36:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  37:c:/winavr/bin/../avr/include/util/delay_basic.h **** #include <inttypes.h>
+  38:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  39:c:/winavr/bin/../avr/include/util/delay_basic.h **** /** \file */
+  40:c:/winavr/bin/../avr/include/util/delay_basic.h **** /** \defgroup util_delay_basic <util/delay_basic.h>: Basic busy-wait delay loops
+  41:c:/winavr/bin/../avr/include/util/delay_basic.h ****     \code
+  42:c:/winavr/bin/../avr/include/util/delay_basic.h ****     #include <util/delay_basic.h>
+  43:c:/winavr/bin/../avr/include/util/delay_basic.h ****     \endcode
+  44:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  45:c:/winavr/bin/../avr/include/util/delay_basic.h ****     The functions in this header file implement simple delay loops
+  46:c:/winavr/bin/../avr/include/util/delay_basic.h ****     that perform a busy-waiting.  They are typically used to
+  47:c:/winavr/bin/../avr/include/util/delay_basic.h ****     facilitate short delays in the program execution.  They are
+  48:c:/winavr/bin/../avr/include/util/delay_basic.h ****     implemented as count-down loops with a well-known CPU cycle
+  49:c:/winavr/bin/../avr/include/util/delay_basic.h ****     count per loop iteration.  As such, no other processing can
+  50:c:/winavr/bin/../avr/include/util/delay_basic.h ****     occur simultaneously.  It should be kept in mind that the
+  51:c:/winavr/bin/../avr/include/util/delay_basic.h ****     functions described here do not disable interrupts.
+  52:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  53:c:/winavr/bin/../avr/include/util/delay_basic.h ****     In general, for long delays, the use of hardware timers is
+  54:c:/winavr/bin/../avr/include/util/delay_basic.h ****     much preferrable, as they free the CPU, and allow for
+  55:c:/winavr/bin/../avr/include/util/delay_basic.h ****     concurrent processing of other events while the timer is
+  56:c:/winavr/bin/../avr/include/util/delay_basic.h ****     running.  However, in particular for very short delays, the
+  57:c:/winavr/bin/../avr/include/util/delay_basic.h ****     overhead of setting up a hardware timer is too much compared
+  58:c:/winavr/bin/../avr/include/util/delay_basic.h ****     to the overall delay time.
+  59:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  60:c:/winavr/bin/../avr/include/util/delay_basic.h ****     Two inline functions are provided for the actual delay algorithms.
+  61:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  62:c:/winavr/bin/../avr/include/util/delay_basic.h **** */
+  63:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  64:c:/winavr/bin/../avr/include/util/delay_basic.h **** #if !defined(__DOXYGEN__)
+  65:c:/winavr/bin/../avr/include/util/delay_basic.h **** static inline void _delay_loop_1(uint8_t __count) __attribute__((always_inline));
+  66:c:/winavr/bin/../avr/include/util/delay_basic.h **** static inline void _delay_loop_2(uint16_t __count) __attribute__((always_inline));
+  67:c:/winavr/bin/../avr/include/util/delay_basic.h **** #endif
+  68:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  69:c:/winavr/bin/../avr/include/util/delay_basic.h **** /** \ingroup util_delay_basic
+  70:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  71:c:/winavr/bin/../avr/include/util/delay_basic.h ****     Delay loop using an 8-bit counter \c __count, so up to 256
+  72:c:/winavr/bin/../avr/include/util/delay_basic.h ****     iterations are possible.  (The value 256 would have to be passed
+  73:c:/winavr/bin/../avr/include/util/delay_basic.h ****     as 0.)  The loop executes three CPU cycles per iteration, not
+  74:c:/winavr/bin/../avr/include/util/delay_basic.h ****     including the overhead the compiler needs to setup the counter
+  75:c:/winavr/bin/../avr/include/util/delay_basic.h ****     register.
+  76:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  77:c:/winavr/bin/../avr/include/util/delay_basic.h ****     Thus, at a CPU speed of 1 MHz, delays of up to 768 microseconds
+  78:c:/winavr/bin/../avr/include/util/delay_basic.h ****     can be achieved.
+  79:c:/winavr/bin/../avr/include/util/delay_basic.h **** */
+  80:c:/winavr/bin/../avr/include/util/delay_basic.h **** void
+  81:c:/winavr/bin/../avr/include/util/delay_basic.h **** _delay_loop_1(uint8_t __count)
+  82:c:/winavr/bin/../avr/include/util/delay_basic.h **** {
+  83:c:/winavr/bin/../avr/include/util/delay_basic.h **** 	__asm__ volatile (
+  84:c:/winavr/bin/../avr/include/util/delay_basic.h **** 		"1: dec %0" "\n\t"
+  85:c:/winavr/bin/../avr/include/util/delay_basic.h **** 		"brne 1b"
+  86:c:/winavr/bin/../avr/include/util/delay_basic.h **** 		: "=r" (__count)
+  87:c:/winavr/bin/../avr/include/util/delay_basic.h **** 		: "0" (__count)
+  88:c:/winavr/bin/../avr/include/util/delay_basic.h **** 	);
+  89:c:/winavr/bin/../avr/include/util/delay_basic.h **** }
+  90:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  91:c:/winavr/bin/../avr/include/util/delay_basic.h **** /** \ingroup util_delay_basic
+  92:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  93:c:/winavr/bin/../avr/include/util/delay_basic.h ****     Delay loop using a 16-bit counter \c __count, so up to 65536
+  94:c:/winavr/bin/../avr/include/util/delay_basic.h ****     iterations are possible.  (The value 65536 would have to be
+  95:c:/winavr/bin/../avr/include/util/delay_basic.h ****     passed as 0.)  The loop executes four CPU cycles per iteration,
+  96:c:/winavr/bin/../avr/include/util/delay_basic.h ****     not including the overhead the compiler requires to setup the
+  97:c:/winavr/bin/../avr/include/util/delay_basic.h ****     counter register pair.
+  98:c:/winavr/bin/../avr/include/util/delay_basic.h **** 
+  99:c:/winavr/bin/../avr/include/util/delay_basic.h ****     Thus, at a CPU speed of 1 MHz, delays of up to about 262.1
+ 100:c:/winavr/bin/../avr/include/util/delay_basic.h ****     milliseconds can be achieved.
+ 101:c:/winavr/bin/../avr/include/util/delay_basic.h ****  */
+ 102:c:/winavr/bin/../avr/include/util/delay_basic.h **** void
+ 103:c:/winavr/bin/../avr/include/util/delay_basic.h **** _delay_loop_2(uint16_t __count)
+ 104:c:/winavr/bin/../avr/include/util/delay_basic.h **** {
+ 105:c:/winavr/bin/../avr/include/util/delay_basic.h **** 	__asm__ volatile (
+ 110               	,r24
+ 111               	/* #APP */
+ 112 0006 88EE      		1: sbiw r30,1
+ 113 0008 93E0      		brne 1b
+ 114 000a FC01      	/* #NOAPP */
+ 115               	.LBE33:
+ 116 000c 3197      	.LBE32:
+ 117 000e 01F4      	.LBE31:
+ 118               	.LBE30:
+ 120               	.Ltext2:
+ 122               	.LM5:
+ 123               		cbi 56-0x20,2
+  58:lcd_lib.c     **** 	_delay_ms(1);
+  59:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);	
+ 125               	x20,0
+ 126               	.LBB34:
+ 127 0010 C298      	.LBB35:
+  60:lcd_lib.c     **** 	LCP&=~(1<<LCD_RS);
+ 128               	B36:
+ 129               	.LBB37:
+ 131               	.Ltext3:
+ 133               	.LM7:
+ 134               	/* #APP */
+ 135               		1: sbiw r24,1
+ 136               		brne 1b
+ 137               	/* #NOAPP */
+ 138               	.LBE37:
+ 139               	.LBE36:
+ 140 0014 0197      	.LBE35:
+ 141 0016 01F4      	.LBE34:
+ 142               	/* epilogue: frame size=0 */
+ 143               		ret
+ 144               	/* epilogue end (size=1) */
+ 145               	/* function LCDsendChar size 17 (16) */
+ 153               	.Lscope1:
+ 156               	.global	LCDsendCommand
+ 158               	LCDsendCommand:
+ 160               	.Ltext4:
+ 162               	.LM8:
+ 163               	.LFBB2:
+ 164               	/* prologue: frame size=0 */
+ 165               	/* prologue end (size=0) */
+  61:lcd_lib.c     **** 	_delay_ms(1);
+  62:lcd_lib.c     **** #endif
+  63:lcd_lib.c     **** }
+  64:lcd_lib.c     **** void LCDsendCommand(uint8_t cmd)	//Sends Command to LCD
+  65:lcd_lib.c     **** {
+ 166               	 50-0x20,r24
+ 168               	.LM10:
+ 169               		sbi 56-0x20,2
+ 170               	.LBB38:
+  66:lcd_lib.c     **** #ifdef LCD_4bit	
+  67:lcd_lib.c     **** 	//4 bit part
+  68:lcd_lib.c     **** 	LDP=(cmd&0b11110000);
+  69:lcd_lib.c     **** 	LCP|=1<<LCD_E;		
+  70:lcd_lib.c     **** 	_delay_ms(1);
+  71:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);
+  72:lcd_lib.c     **** 	_delay_ms(1);
+  73:lcd_lib.c     **** 	LDP=((cmd&0b00001111)<<4);	
+  74:lcd_lib.c     **** 	LCP|=1<<LCD_E;		
+  75:lcd_lib.c     **** 	_delay_ms(1);
+  76:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);
+  77:lcd_lib.c     **** 	_delay_ms(1);
+  78:lcd_lib.c     **** #else
+  79:lcd_lib.c     **** 	//8 bit part
+  80:lcd_lib.c     **** 	LDP=cmd;
+ 171               	9:
+ 172               	.LBB40:
+ 173 001a 82BB      	.LBB41:
+  81:lcd_lib.c     **** 	LCP|=1<<LCD_E;		
+ 174               	tabs	"c:/winavr/bin/../avr/include/util/delay_basic.h",132,0,0,.Ltext5
+ 175               	.Ltext5:
+ 177               	.LM11:
+ 178               		ldi r24,lo8(1000)
+ 179               		ldi r25,hi8(1000)
+ 180               		movw r30,r24
+ 181               	/* #APP */
+ 182               		1: sbiw r30,1
+ 183               		brne 1b
+ 184               	/* #NOAPP */
+ 185 001e 88EE      	.LBE41:
+ 186 0020 93E0      	.LBE40:
+ 187 0022 FC01      	.LBE39:
+ 188               	.LBE38:
+ 190 0026 01F4      	.Ltext6:
+ 192               	.LM12:
+ 193               		cbi 56-0x20,2
+ 194               	.LBB42:
+ 195               	.LBB43:
+ 196               	.LBB44:
+ 197               	.LBB45:
+  82:lcd_lib.c     **** 	_delay_ms(1);
+  83:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);
+ 198               	./avr/include/util/delay_basic.h",132,0,0,.Ltext7
+ 199               	.Ltext7:
+ 201               	.LM13:
+ 202               	/* #APP */
+ 203               		1: sbiw r24,1
+ 204               		brne 1b
+ 205               	/* #NOAPP */
+ 206               	.LBE45:
+ 207               	.LBE44:
+ 208               	.LBE43:
+ 209               	.LBE42:
+ 210 002a 0197      	/* epilogue: frame size=0 */
+ 211 002c 01F4      		ret
+ 212               	/* epilogue end (size=1) */
+ 213               	/* function LCDsendCommand size 15 (14) */
+ 221               	.Lscope2:
+ 223               	.global	LCDclr
+ 225               	LCDclr:
+ 227               	.Ltext8:
+ 229               	.LM14:
+ 230               	.LFBB3:
+ 231               	/* prologue: frame size=0 */
+ 232               	/* prologue end (size=0) */
+ 234               	.LM15:
+  84:lcd_lib.c     **** 	_delay_ms(1);	
+  85:lcd_lib.c     **** #endif
+  86:lcd_lib.c     **** }
+  87:lcd_lib.c     **** void LCDinit(void)//Initializes LCD
+  88:lcd_lib.c     **** {
+  89:lcd_lib.c     **** #ifdef LCD_4bit	
+  90:lcd_lib.c     **** 	//4 bit part
+  91:lcd_lib.c     **** 	_delay_ms(15);
+  92:lcd_lib.c     **** 	LDP=0x00;
+  93:lcd_lib.c     **** 	LCP=0x00;
+  94:lcd_lib.c     **** 	LDDR|=1<<LCD_D7|1<<LCD_D6|1<<LCD_D5|1<<LCD_D4;
+  95:lcd_lib.c     **** 	LCDR|=1<<LCD_E|1<<LCD_RW|1<<LCD_RS;
+  96:lcd_lib.c     ****    //---------one------
+  97:lcd_lib.c     **** 	LDP=0<<LCD_D7|0<<LCD_D6|1<<LCD_D5|1<<LCD_D4; //4 bit mode
+  98:lcd_lib.c     **** 	LCP|=1<<LCD_E|0<<LCD_RW|0<<LCD_RS;		
+  99:lcd_lib.c     **** 	_delay_ms(1);
+ 100:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);
+ 101:lcd_lib.c     **** 	_delay_ms(1);
+ 102:lcd_lib.c     **** 	//-----------two-----------
+ 103:lcd_lib.c     **** 	LDP=0<<LCD_D7|0<<LCD_D6|1<<LCD_D5|1<<LCD_D4; //4 bit mode
+ 104:lcd_lib.c     **** 	LCP|=1<<LCD_E|0<<LCD_RW|0<<LCD_RS;		
+ 105:lcd_lib.c     **** 	_delay_ms(1);
+ 106:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);
+ 107:lcd_lib.c     **** 	_delay_ms(1);
+ 108:lcd_lib.c     **** 	//-------three-------------
+ 109:lcd_lib.c     **** 	LDP=0<<LCD_D7|0<<LCD_D6|1<<LCD_D5|0<<LCD_D4; //4 bit mode
+ 110:lcd_lib.c     **** 	LCP|=1<<LCD_E|0<<LCD_RW|0<<LCD_RS;		
+ 111:lcd_lib.c     **** 	_delay_ms(1);
+ 112:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);
+ 113:lcd_lib.c     **** 	_delay_ms(1);
+ 114:lcd_lib.c     **** 	//--------4 bit--dual line---------------
+ 115:lcd_lib.c     **** 	LCDsendCommand(0b00101000);
+ 116:lcd_lib.c     ****    //-----increment address, invisible cursor shift------
+ 117:lcd_lib.c     **** 	LCDsendCommand(0b00001100);
+ 118:lcd_lib.c     **** 		//init 8 custom chars
+ 119:lcd_lib.c     **** 	uint8_t ch=0, chn=0;
+ 120:lcd_lib.c     **** 	while(ch<64)
+ 121:lcd_lib.c     **** 	{
+ 122:lcd_lib.c     **** 		LCDdefinechar((LcdCustomChar+ch),chn++);
+ 123:lcd_lib.c     **** 		ch=ch+8;
+ 124:lcd_lib.c     **** 	}
+ 125:lcd_lib.c     **** 
+ 126:lcd_lib.c     **** 
+ 127:lcd_lib.c     **** #else
+ 128:lcd_lib.c     **** 	//8 bit part
+ 129:lcd_lib.c     **** 	_delay_ms(15);
+ 130:lcd_lib.c     **** 	LDP=0x00;
+ 131:lcd_lib.c     **** 	LCP=0x00;
+ 132:lcd_lib.c     **** 	LDDR|=1<<LCD_D7|1<<LCD_D6|1<<LCD_D5|1<<LCD_D4|1<<LCD_D3
+ 133:lcd_lib.c     **** 			|1<<LCD_D2|1<<LCD_D1|1<<LCD_D0;
+ 134:lcd_lib.c     **** 	LCDR|=1<<LCD_E|1<<LCD_RW|1<<LCD_RS;
+ 135:lcd_lib.c     ****    //---------one------
+ 136:lcd_lib.c     **** 	LDP=0<<LCD_D7|0<<LCD_D6|1<<LCD_D5|1<<LCD_D4|0<<LCD_D3
+ 137:lcd_lib.c     **** 			|0<<LCD_D2|0<<LCD_D1|0<<LCD_D0; //8 it mode
+ 138:lcd_lib.c     **** 	LCP|=1<<LCD_E|0<<LCD_RW|0<<LCD_RS;		
+ 139:lcd_lib.c     **** 	_delay_ms(1);
+ 140:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);
+ 141:lcd_lib.c     **** 	_delay_ms(1);
+ 142:lcd_lib.c     **** 	//-----------two-----------
+ 143:lcd_lib.c     **** 	LDP=0<<LCD_D7|0<<LCD_D6|1<<LCD_D5|1<<LCD_D4|0<<LCD_D3
+ 144:lcd_lib.c     **** 			|0<<LCD_D2|0<<LCD_D1|0<<LCD_D0; //8 it mode
+ 145:lcd_lib.c     **** 	LCP|=1<<LCD_E|0<<LCD_RW|0<<LCD_RS;		
+ 146:lcd_lib.c     **** 	_delay_ms(1);
+ 147:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);
+ 148:lcd_lib.c     **** 	_delay_ms(1);
+ 149:lcd_lib.c     **** 	//-------three-------------
+ 150:lcd_lib.c     **** 	LDP=0<<LCD_D7|0<<LCD_D6|1<<LCD_D5|1<<LCD_D4|0<<LCD_D3
+ 151:lcd_lib.c     **** 			|0<<LCD_D2|0<<LCD_D1|0<<LCD_D0; //8 it mode
+ 152:lcd_lib.c     **** 	LCP|=1<<LCD_E|0<<LCD_RW|0<<LCD_RS;		
+ 153:lcd_lib.c     **** 	_delay_ms(1);
+ 154:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);
+ 155:lcd_lib.c     **** 	_delay_ms(1);
+ 156:lcd_lib.c     **** 	//--------8 bit dual line----------
+ 157:lcd_lib.c     **** 	LDP=0<<LCD_D7|0<<LCD_D6|1<<LCD_D5|1<<LCD_D4|1<<LCD_D3
+ 158:lcd_lib.c     **** 			|0<<LCD_D2|0<<LCD_D1|0<<LCD_D0; //8 it mode
+ 159:lcd_lib.c     **** 	LCP|=1<<LCD_E|0<<LCD_RW|0<<LCD_RS;		
+ 160:lcd_lib.c     **** 	_delay_ms(1);
+ 161:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);
+ 162:lcd_lib.c     **** 	_delay_ms(1);
+ 163:lcd_lib.c     ****    //-----increment address, invisible cursor shift------
+ 164:lcd_lib.c     **** 	LDP=0<<LCD_D7|0<<LCD_D6|0<<LCD_D5|0<<LCD_D4|1<<LCD_D3
+ 165:lcd_lib.c     **** 			|1<<LCD_D2|0<<LCD_D1|0<<LCD_D0; //8 it mode
+ 166:lcd_lib.c     **** 	LCP|=1<<LCD_E|0<<LCD_RW|0<<LCD_RS;		
+ 167:lcd_lib.c     **** 	_delay_ms(1);
+ 168:lcd_lib.c     **** 	LCP&=~(1<<LCD_E);
+ 169:lcd_lib.c     **** 	_delay_ms(5);
+ 170:lcd_lib.c     **** 		//init custom chars
+ 171:lcd_lib.c     **** 	uint8_t ch=0, chn=0;
+ 172:lcd_lib.c     **** 	while(ch<64)
+ 173:lcd_lib.c     **** 	{
+ 174:lcd_lib.c     **** 		LCDdefinechar((LcdCustomChar+ch),chn++);
+ 175:lcd_lib.c     **** 		ch=ch+8;
+ 176:lcd_lib.c     **** 	}
+ 177:lcd_lib.c     **** 
+ 178:lcd_lib.c     **** #endif
+ 179:lcd_lib.c     **** }			
+ 180:lcd_lib.c     **** void LCDclr(void)				//Clears LCD
+ 181:lcd_lib.c     **** {
+ 235               	
+ 236               	/* epilogue: frame size=0 */
+ 237               		ret
+ 238               	/* epilogue end (size=1) */
+ 239               	/* function LCDclr size 3 (2) */
+ 182:lcd_lib.c     **** 	LCDsendCommand(1<<LCD_CLR);
+ 240               	ze	LCDclr, .-LCDclr
+ 241               	.Lscope3:
+ 243 0032 00D0      	.global	LCDhome
+ 245 0034 0895      	LCDhome:
+ 247               	.LM16:
+ 248               	.LFBB4:
+ 249               	/* prologue: frame size=0 */
+ 250               	/* prologue end (size=0) */
+ 252               	.LM17:
+ 253               		ldi r24,lo8(2)
+ 183:lcd_lib.c     **** }
+ 184:lcd_lib.c     **** void LCDhome(void)			//LCD cursor home
+ 185:lcd_lib.c     **** {
+ 254               	Command
+ 255               	/* epilogue: frame size=0 */
+ 256               		ret
+ 257               	/* epilogue end (size=1) */
+ 258               	/* function LCDhome size 3 (2) */
+ 186:lcd_lib.c     **** 	LCDsendCommand(1<<LCD_HOME);
+ 259               	e	LCDhome, .-LCDhome
+ 260               	.Lscope4:
+ 264 003a 0895      	.global	LCDstring
+ 266               	LCDstring:
+ 268               	.LM18:
+ 269               	.LFBB5:
+ 270               	/* prologue: frame size=0 */
+ 271               		push r16
+ 272               		push r17
+ 273               		push r28
+ 274               		push r29
+ 187:lcd_lib.c     **** }
+ 188:lcd_lib.c     **** void LCDstring(uint8_t* data, uint8_t nBytes)	//Outputs string to LCD
+ 189:lcd_lib.c     **** {
+ 275               	(size=4) */
+ 276               		mov r16,r22
+ 278               	.LM19:
+ 279 003c 0F93      		sbiw r24,0
+ 280 003e 1F93      		breq .L14
+ 282 0042 DF93      	.LM20:
+ 283               		movw r28,r24
+ 284 0044 062F      		ldi r17,lo8(0)
+ 190:lcd_lib.c     **** register uint8_t i;
+ 191:lcd_lib.c     **** 
+ 192:lcd_lib.c     **** 	// check to make sure we have a good pointer
+ 193:lcd_lib.c     **** 	if (!data) return;
+ 285               	
+ 286               	.L13:
+ 288 0048 01F0      	.LM21:
+ 289               		ld r24,Y+
+ 290               		rcall LCDsendChar
+ 292 004c 10E0      	.LM22:
+ 293 004e 00C0      		subi r17,lo8(-(1))
+ 294               	.L12:
+ 194:lcd_lib.c     **** 
+ 195:lcd_lib.c     **** 	// print data
+ 196:lcd_lib.c     **** 	for(i=0; i<nBytes; i++)
+ 197:lcd_lib.c     **** 	{
+ 198:lcd_lib.c     **** 		LCDsendChar(data[i]);
+ 295               	16
+ 296               		brne .L13
+ 297 0050 8991      	.L14:
+ 298 0052 00D0      	/* epilogue: frame size=0 */
+ 299               		pop r29
+ 300               		pop r28
+ 301 0054 1F5F      		pop r17
+ 302               		pop r16
+ 303 0056 1017      		ret
+ 304 0058 01F4      	/* epilogue end (size=5) */
+ 305               	/* function LCDstring size 20 (11) */
+ 310 0060 0F91      	.Lscope5:
+ 314               	.global	LCDGotoXY
+ 316               	LCDGotoXY:
+ 318               	.LM23:
+ 319               	.LFBB6:
+ 320               	/* prologue: frame size=0 */
+ 321               	/* prologue end (size=0) */
+ 323               	.LM24:
+ 324               		cpi r22,lo8(2)
+ 199:lcd_lib.c     **** 	}
+ 200:lcd_lib.c     **** }
+ 201:lcd_lib.c     **** void LCDGotoXY(uint8_t x, uint8_t y)	//Cursor to X Y position
+ 202:lcd_lib.c     **** {
+ 325               	M25-.LFBB6
+ 326               	.LM25:
+ 327               		cpi r22,lo8(3)
+ 328               		breq .L19
+ 329               		cpi r22,lo8(1)
+ 203:lcd_lib.c     **** 	register uint8_t DDRAMAddr;
+ 204:lcd_lib.c     **** 	// remap lines into proper order
+ 205:lcd_lib.c     **** 	switch(y)
+ 330               	 .L20
+ 332 0064 6230      	.LM26:
+ 333 0066 01F0      		subi r24,lo8(-(64))
+ 334               		rjmp .L20
+ 335               	.L18:
+ 337 006a 01F0      	.LM27:
+ 338 006c 6130      		subi r24,lo8(-(20))
+ 339 006e 01F4      		rjmp .L20
+ 206:lcd_lib.c     **** 	{
+ 207:lcd_lib.c     **** 	case 0: DDRAMAddr = LCD_LINE0_DDRAMADDR+x; break;
+ 208:lcd_lib.c     **** 	case 1: DDRAMAddr = LCD_LINE1_DDRAMADDR+x; break;
+ 340               	abn	68,0,210,.LM28-.LFBB6
+ 341               	.LM28:
+ 342 0070 805C      		subi r24,lo8(-(84))
+ 343 0072 00C0      	.L20:
+ 209:lcd_lib.c     **** 	case 2: DDRAMAddr = LCD_LINE2_DDRAMADDR+x; break;
+ 345               	:
+ 346               		ori r24,lo8(-128)
+ 347 0074 8C5E      		rcall LCDsendCommand
+ 348 0076 00C0      	/* epilogue: frame size=0 */
+ 349               		ret
+ 210:lcd_lib.c     **** 	case 3: DDRAMAddr = LCD_LINE3_DDRAMADDR+x; break;
+ 350               	ilogue end (size=1) */
+ 351               	/* function LCDGotoXY size 14 (13) */
+ 211:lcd_lib.c     **** 	default: DDRAMAddr = LCD_LINE0_DDRAMADDR+x;
+ 212:lcd_lib.c     **** 	}
+ 213:lcd_lib.c     **** 	// set data address
+ 214:lcd_lib.c     **** 	LCDsendCommand(1<<LCD_DDRAM | DDRAMAddr);
+ 354               	abn	192,0,0,.LFBB6-.LFBB6
+ 356 007a 8068      	.Lscope6:
+ 361               	.global	CopyStringtoLCD
+ 363               	CopyStringtoLCD:
+ 365               	.LM30:
+ 366               	.LFBB7:
+ 367               	/* prologue: frame size=0 */
+ 368               		push r16
+ 369               		push r17
+ 370               		push r28
+ 371               		push r29
+ 372               	/* prologue end (size=4) */
+ 373               		movw r16,r24
+ 215:lcd_lib.c     **** 	
+ 216:lcd_lib.c     **** }
+ 217:lcd_lib.c     **** //Copies string from flash memory to LCD at x y position
+ 218:lcd_lib.c     **** //const uint8_t welcomeln1[] PROGMEM="AVR LCD DEMO\0";
+ 219:lcd_lib.c     **** //CopyStringtoLCD(welcomeln1, 3, 1);	
+ 220:lcd_lib.c     **** void CopyStringtoLCD(const uint8_t *FlashLoc, uint8_t x, uint8_t y)
+ 221:lcd_lib.c     **** {
+ 374               		68,0,223,.LM31-.LFBB7
+ 375               	.LM31:
+ 376               		mov r22,r20
+ 377               		rcall LCDGotoXY
+ 378 0080 0F93      		ldi r28,lo8(0)
+ 379 0082 1F93      		ldi r29,hi8(0)
+ 380 0084 CF93      		rjmp .L23
+ 381 0086 DF93      	.L24:
+ 383 0088 8C01      	.LM32:
+ 384 008a 862F      		rcall LCDsendChar
+ 222:lcd_lib.c     **** 	uint8_t i;
+ 223:lcd_lib.c     **** 	LCDGotoXY(x,y);
+ 385               	6:
+ 387 008c 642F      	.LM33:
+ 388 008e 00D0      		movw r30,r16
+ 389 0090 C0E0      		add r30,r28
+ 390 0092 D0E0      		adc r31,__zero_reg__
+ 391 0094 00C0      	/* #APP */
+ 392               		lpm r24, Z
+ 224:lcd_lib.c     **** 	for(i=0;(uint8_t)pgm_read_byte(&FlashLoc[i]);i++)
+ 225:lcd_lib.c     **** 	{
+ 226:lcd_lib.c     **** 		LCDsendChar((uint8_t)pgm_read_byte(&FlashLoc[i]));
+ 393               	APP */
+ 394               		adiw r28,1
+ 395 0096 00D0      	.LBE46:
+ 396               		tst r24
+ 397               		brne .L24
+ 398               	/* epilogue: frame size=0 */
+ 399               		pop r29
+ 400 0098 F801      		pop r28
+ 401 009a EC0F      		pop r17
+ 402 009c F11D      		pop r16
+ 403               		ret
+ 404 009e 8491      	/* epilogue end (size=5) */
+ 405               	/* function CopyStringtoLCD size 27 (18) */
+ 411               	.Lscope7:
+ 415 00ac 0F91      	.global	LCDdefinechar
+ 417               	LCDdefinechar:
+ 419               	.LM34:
+ 420               	.LFBB8:
+ 421               	/* prologue: frame size=0 */
+ 422               		push r14
+ 423               		push r15
+ 424               		push r16
+ 425               		push r17
+ 426               		push r28
+ 427               		push r29
+ 428               	/* prologue end (size=6) */
+ 429               		movw r14,r24
+ 430               		mov r17,r22
+ 227:lcd_lib.c     **** 	}
+ 228:lcd_lib.c     **** }
+ 229:lcd_lib.c     **** //defines char symbol in CGRAM
+ 230:lcd_lib.c     **** /*
+ 231:lcd_lib.c     **** const uint8_t backslash[] PROGMEM= 
+ 232:lcd_lib.c     **** {
+ 233:lcd_lib.c     **** 0b00000000,//back slash
+ 234:lcd_lib.c     **** 0b00010000,
+ 235:lcd_lib.c     **** 0b00001000,
+ 236:lcd_lib.c     **** 0b00000100,
+ 237:lcd_lib.c     **** 0b00000010,
+ 238:lcd_lib.c     **** 0b00000001,
+ 239:lcd_lib.c     **** 0b00000000,
+ 240:lcd_lib.c     **** 0b00000000
+ 241:lcd_lib.c     **** };
+ 242:lcd_lib.c     **** LCDdefinechar(backslash,0);
+ 243:lcd_lib.c     **** */
+ 244:lcd_lib.c     **** void LCDdefinechar(const uint8_t *pc,uint8_t char_code){
+ 431               	lsl r17
+ 432               		lsl r17
+ 433               		lsl r17
+ 434               		ori r17,lo8(64)
+ 435 00b0 EF92      		ldi r28,lo8(0)
+ 436 00b2 FF92      		ldi r29,hi8(0)
+ 437 00b4 0F93      	.L28:
+ 438 00b6 1F93      	.LBB47:
+ 440 00ba DF93      	.LM36:
+ 441               		movw r30,r28
+ 442 00bc 7C01      		add r30,r14
+ 443 00be 162F      		adc r31,r15
+ 245:lcd_lib.c     **** 	uint8_t a, pcc;
+ 246:lcd_lib.c     **** 	uint16_t i;
+ 247:lcd_lib.c     **** 	a=(char_code<<3)|0x40;
+ 444               	pm r16, Z
+ 445               		
+ 446 00c0 110F      	/* #NOAPP */
+ 447 00c2 110F      	.LBE47:
+ 449 00c6 1064      	.LM37:
+ 450 00c8 C0E0      		mov r24,r17
+ 451 00ca D0E0      		add r24,r28
+ 452               		rcall LCDsendCommand
+ 248:lcd_lib.c     **** 	for (i=0; i<8; i++){
+ 249:lcd_lib.c     **** 		pcc=pgm_read_byte(&pc[i]);
+ 454               	v r24,r16
+ 455               		rcall LCDsendChar
+ 457 00ce EE0D      	.LM39:
+ 458 00d0 FF1D      		adiw r28,1
+ 459               		cpi r28,8
+ 460 00d2 0491      		cpc r29,__zero_reg__
+ 461               		brne .L28
+ 462               	/* epilogue: frame size=0 */
+ 463               		pop r29
+ 250:lcd_lib.c     **** 		LCDsendCommand(a++);
+ 464               	pop r17
+ 465               		pop r16
+ 466 00d4 812F      		pop r15
+ 467 00d6 8C0F      		pop r14
+ 468 00d8 00D0      		ret
+ 251:lcd_lib.c     **** 		LCDsendChar(pcc);
+ 469               	ilogue end (size=7) */
+ 470               	/* function LCDdefinechar size 37 (24) */
+ 479               	.Lscope8:
+ 482 00ea 1F91      	.global	LCDshiftLeft
+ 484 00ee FF90      	LCDshiftLeft:
+ 486 00f2 0895      	.LM40:
+ 487               	.LFBB9:
+ 488               	/* prologue: frame size=0 */
+ 489               		push r16
+ 490               		push r17
+ 491               	/* prologue end (size=2) */
+ 492               		mov r16,r24
+ 493               		ldi r17,lo8(0)
+ 494               		rjmp .L34
+ 495               	.L35:
+ 496               	.LBB48:
+ 498               	.LM41:
+ 499               		ldi r24,lo8(30)
+ 500               		rcall LCDsendCommand
+ 502               	.LM42:
+ 252:lcd_lib.c     **** 		}
+ 253:lcd_lib.c     **** }
+ 254:lcd_lib.c     **** 
+ 255:lcd_lib.c     **** void LCDshiftLeft(uint8_t n)	//Scrol n of characters Right
+ 256:lcd_lib.c     **** {
+ 503               	r16
+ 504               		brne .L35
+ 505               	.LBE48:
+ 506               	/* epilogue: frame size=0 */
+ 507 00f4 0F93      		pop r17
+ 508 00f6 1F93      		pop r16
+ 509               		ret
+ 510 00f8 082F      	/* epilogue end (size=3) */
+ 511 00fa 10E0      	/* function LCDshiftLeft size 13 (8) */
+ 257:lcd_lib.c     **** 	for (uint8_t i=0;i<n;i++)
+ 258:lcd_lib.c     **** 	{
+ 259:lcd_lib.c     **** 		LCDsendCommand(0x1E);
+ 515               	0,0,.LBE48-.LFBB9
+ 516               	.Lscope9:
+ 519               	.global	LCDshiftRight
+ 521 0102 1F5F      	LCDshiftRight:
+ 523 0104 1017      	.LM43:
+ 524 0106 01F4      	.LFBB10:
+ 525               	/* prologue: frame size=0 */
+ 526               		push r16
+ 527 0108 1F91      		push r17
+ 528 010a 0F91      	/* prologue end (size=2) */
+ 529 010c 0895      		mov r16,r24
+ 530               		ldi r17,lo8(0)
+ 531               		rjmp .L39
+ 532               	.L40:
+ 533               	.LBB49:
+ 535               	.LM44:
+ 536               		ldi r24,lo8(24)
+ 537               		rcall LCDsendCommand
+ 539               	.LM45:
+ 540               		subi r17,lo8(-(1))
+ 541               	.L39:
+ 260:lcd_lib.c     **** 	}
+ 261:lcd_lib.c     **** }
+ 262:lcd_lib.c     **** void LCDshiftRight(uint8_t n)	//Scrol n of characters Left
+ 263:lcd_lib.c     **** {
+ 542               	49:
+ 543               	/* epilogue: frame size=0 */
+ 544               		pop r17
+ 545               		pop r16
+ 546 010e 0F93      		ret
+ 547 0110 1F93      	/* epilogue end (size=3) */
+ 548               	/* function LCDshiftRight size 13 (8) */
+ 553               	.Lscope10:
+ 264:lcd_lib.c     **** 	for (uint8_t i=0;i<n;i++)
+ 265:lcd_lib.c     **** 	{
+ 266:lcd_lib.c     **** 		LCDsendCommand(0x18);
+ 554               	cursorOn:F(0,15)",36,0,0,LCDcursorOn
+ 555               	.global	LCDcursorOn
+ 557 011a 00D0      	LCDcursorOn:
+ 559               	.LM46:
+ 560 011c 1F5F      	.LFBB11:
+ 561               	/* prologue: frame size=0 */
+ 562 011e 1017      	/* prologue end (size=0) */
+ 564               	.LM47:
+ 565               		ldi r24,lo8(14)
+ 566 0122 1F91      		rcall LCDsendCommand
+ 567 0124 0F91      	/* epilogue: frame size=0 */
+ 568 0126 0895      		ret
+ 569               	/* epilogue end (size=1) */
+ 570               	/* function LCDcursorOn size 3 (2) */
+ 572               	.Lscope11:
+ 574               	.global	LCDcursorOnBlink
+ 576               	LCDcursorOnBlink:
+ 578               	.LM48:
+ 579               	.LFBB12:
+ 267:lcd_lib.c     **** 	}
+ 268:lcd_lib.c     **** }
+ 269:lcd_lib.c     **** void LCDcursorOn(void) //displays LCD cursor
+ 270:lcd_lib.c     **** {
+ 580               	*/
+ 581               	/* prologue end (size=0) */
+ 583               	.LM49:
+ 584               		ldi r24,lo8(15)
+ 271:lcd_lib.c     **** 	LCDsendCommand(0x0E);
+ 585               	l LCDsendCommand
+ 586               	/* epilogue: frame size=0 */
+ 587 0128 8EE0      		ret
+ 588 012a 00D0      	/* epilogue end (size=1) */
+ 589               	/* function LCDcursorOnBlink size 3 (2) */
+ 591               	.Lscope12:
+ 593               	.global	LCDcursorOFF
+ 595               	LCDcursorOFF:
+ 597               	.LM50:
+ 598               	.LFBB13:
+ 272:lcd_lib.c     **** }
+ 273:lcd_lib.c     **** void LCDcursorOnBlink(void)	//displays LCD blinking cursor
+ 274:lcd_lib.c     **** {
+ 599               	rame size=0 */
+ 600               	/* prologue end (size=0) */
+ 602               	.LM51:
+ 603               		ldi r24,lo8(12)
+ 275:lcd_lib.c     **** 	LCDsendCommand(0x0F);
+ 604               	l LCDsendCommand
+ 605               	/* epilogue: frame size=0 */
+ 606 012e 8FE0      		ret
+ 607 0130 00D0      	/* epilogue end (size=1) */
+ 608               	/* function LCDcursorOFF size 3 (2) */
+ 610               	.Lscope13:
+ 612               	.global	LCDblank
+ 614               	LCDblank:
+ 616               	.LM52:
+ 617               	.LFBB14:
+ 276:lcd_lib.c     **** }
+ 277:lcd_lib.c     **** void LCDcursorOFF(void)	//turns OFF cursor
+ 278:lcd_lib.c     **** {
+ 618               	rame size=0 */
+ 619               	/* prologue end (size=0) */
+ 621               	.LM53:
+ 622               		ldi r24,lo8(8)
+ 279:lcd_lib.c     **** 	LCDsendCommand(0x0C);
+ 623               	l LCDsendCommand
+ 624               	/* epilogue: frame size=0 */
+ 625 0134 8CE0      		ret
+ 626 0136 00D0      	/* epilogue end (size=1) */
+ 627               	/* function LCDblank size 3 (2) */
+ 629               	.Lscope14:
+ 631               	.global	LCDvisible
+ 633               	LCDvisible:
+ 635               	.LM54:
+ 636               	.LFBB15:
+ 280:lcd_lib.c     **** }
+ 281:lcd_lib.c     **** void LCDblank(void)		//blanks LCD
+ 282:lcd_lib.c     **** {
+ 637               	rame size=0 */
+ 638               	/* prologue end (size=0) */
+ 640               	.LM55:
+ 641               		ldi r24,lo8(12)
+ 283:lcd_lib.c     **** 	LCDsendCommand(0x08);
+ 642               	l LCDsendCommand
+ 643               	/* epilogue: frame size=0 */
+ 644 013a 88E0      		ret
+ 645 013c 00D0      	/* epilogue end (size=1) */
+ 646               	/* function LCDvisible size 3 (2) */
+ 648               	.Lscope15:
+ 651               	.global	LCDcursorLeft
+ 653               	LCDcursorLeft:
+ 655               	.LM56:
+ 284:lcd_lib.c     **** }
+ 285:lcd_lib.c     **** void LCDvisible(void)		//Shows LCD
+ 286:lcd_lib.c     **** {
+ 656               	ologue: frame size=0 */
+ 657               		push r16
+ 658               		push r17
+ 659               	/* prologue end (size=2) */
+ 660               		mov r16,r24
+ 287:lcd_lib.c     **** 	LCDsendCommand(0x0C);
+ 661               	r17,lo8(0)
+ 662               		rjmp .L54
+ 663 0140 8CE0      	.L55:
+ 664 0142 00D0      	.LBB50:
+ 666 0144 0895      	.LM57:
+ 667               		ldi r24,lo8(16)
+ 668               		rcall LCDsendCommand
+ 670               	.LM58:
+ 671               		subi r17,lo8(-(1))
+ 672               	.L54:
+ 673               		cp r17,r16
+ 674               		brne .L55
+ 675               	.LBE50:
+ 288:lcd_lib.c     **** }
+ 289:lcd_lib.c     **** void LCDcursorLeft(uint8_t n)	//Moves cursor by n poisitions left
+ 290:lcd_lib.c     **** {
+ 676               	ame size=0 */
+ 677               		pop r17
+ 678               		pop r16
+ 679               		ret
+ 680 0146 0F93      	/* epilogue end (size=3) */
+ 681 0148 1F93      	/* function LCDcursorLeft size 13 (8) */
+ 686               	.Lscope16:
+ 291:lcd_lib.c     **** 	for (uint8_t i=0;i<n;i++)
+ 292:lcd_lib.c     **** 	{
+ 293:lcd_lib.c     **** 		LCDsendCommand(0x10);
+ 688               	(3,2)",64,0,0,16
+ 689               	.global	LCDcursorRight
+ 691 0152 00D0      	LCDcursorRight:
+ 693               	.LM59:
+ 694 0154 1F5F      	.LFBB17:
+ 695               	/* prologue: frame size=0 */
+ 696 0156 1017      		push r16
+ 697 0158 01F4      		push r17
+ 698               	/* prologue end (size=2) */
+ 699               		mov r16,r24
+ 700 015a 1F91      		ldi r17,lo8(0)
+ 701 015c 0F91      		rjmp .L59
+ 702 015e 0895      	.L60:
+ 703               	.LBB51:
+ 705               	.LM60:
+ 706               		ldi r24,lo8(20)
+ 707               		rcall LCDsendCommand
+ 709               	.LM61:
+ 710               		subi r17,lo8(-(1))
+ 711               	.L59:
+ 712               		cp r17,r16
+ 713               		brne .L60
+ 714               	.LBE51:
+ 294:lcd_lib.c     **** 	}
+ 295:lcd_lib.c     **** }
+ 296:lcd_lib.c     **** void LCDcursorRight(uint8_t n)	//Moves cursor by n poisitions left
+ 297:lcd_lib.c     **** {
+ 715               	/
+ 716               		pop r17
+ 717               		pop r16
+ 718               		ret
+ 719 0160 0F93      	/* epilogue end (size=3) */
+ 720 0162 1F93      	/* function LCDcursorRight size 13 (8) */
+ 725               	.Lscope17:
+ 298:lcd_lib.c     **** 	for (uint8_t i=0;i<n;i++)
+ 299:lcd_lib.c     **** 	{
+ 300:lcd_lib.c     **** 		LCDsendCommand(0x14);
+ 727               	gress:P(3,2)",64,0,0,24
+ 730 016c 00D0      	.global	LCDprogressBar
+ 732               	LCDprogressBar:
+ 734               	.LM62:
+ 735 0170 1017      	.LFBB18:
+ 736 0172 01F4      	/* prologue: frame size=0 */
+ 737               		push r13
+ 738               		push r14
+ 739 0174 1F91      		push r15
+ 740 0176 0F91      		push r16
+ 741 0178 0895      		push r17
+ 742               		push r28
+ 743               		push r29
+ 744               	/* prologue end (size=7) */
+ 745               		mov r13,r20
+ 747               	.LM63:
+ 748               		ldi r25,lo8(6)
+ 749               		mul r24,r25
+ 750               		movw r24,r0
+ 751               		clr r1
+ 752               		mov r18,r20
+ 753               		ldi r19,lo8(0)
+ 754               		ldi r23,lo8(0)
+ 755               		movw r20,r24
+ 301:lcd_lib.c     **** 	}
+ 302:lcd_lib.c     **** }
+ 303:lcd_lib.c     **** //adapted fro mAVRLIB
+ 304:lcd_lib.c     **** void LCDprogressBar(uint8_t progress, uint8_t maxprogress, uint8_t length)
+ 305:lcd_lib.c     **** {
+ 756               	l r20,r19
+ 757               		add r25,r0
+ 758               		mul r21,r18
+ 759               		add r25,r0
+ 760 017a DF92      		clr r1
+ 761 017c EF92      		rcall __divmodhi4
+ 762 017e FF92      		movw r28,r22
+ 764 0182 1F93      	.LM64:
+ 765 0184 CF93      		movw r24,r22
+ 766 0186 DF93      		ldi r22,lo8(6)
+ 767               		ldi r23,hi8(6)
+ 768 0188 D42E      		rcall __udivmodhi4
+ 306:lcd_lib.c     **** 	uint8_t i;
+ 307:lcd_lib.c     **** 	uint16_t pixelprogress;
+ 308:lcd_lib.c     **** 	uint8_t c;
+ 309:lcd_lib.c     **** 
+ 310:lcd_lib.c     **** 	// draw a progress bar displaying (progress / maxprogress)
+ 311:lcd_lib.c     **** 	// starting from the current cursor position
+ 312:lcd_lib.c     **** 	// with a total length of "length" characters
+ 313:lcd_lib.c     **** 	// ***note, LCD chars 0-5 must be programmed as the bar characters
+ 314:lcd_lib.c     **** 	// char 0 = empty ... char 5 = full
+ 315:lcd_lib.c     **** 
+ 316:lcd_lib.c     **** 	// total pixel length of bargraph equals length*PROGRESSPIXELS_PER_CHAR;
+ 317:lcd_lib.c     **** 	// pixel length of bar itself is
+ 318:lcd_lib.c     **** 	pixelprogress = ((progress*(length*PROGRESSPIXELS_PER_CHAR))/maxprogress);
+ 769               		clr r15
+ 770               		ldi r16,lo8(0)
+ 771 018a 96E0      		ldi r17,hi8(0)
+ 772 018c 899F      		rjmp .L64
+ 773 018e C001      	.L65:
+ 775 0192 242F      	.LM65:
+ 776 0194 30E0      		movw r24,r16
+ 777 0196 70E0      		adiw r24,5
+ 778 0198 AC01      		cp r28,r24
+ 779 019a 429F      		cpc r29,r25
+ 780 019c C001      		brlo .L66
+ 781 019e 439F      		ldi r24,lo8(5)
+ 782 01a0 900D      		rjmp .L68
+ 783 01a2 529F      	.L66:
+ 785 01a6 1124      	.LM66:
+ 786 01a8 00D0      		cp r28,r16
+ 787 01aa EB01      		cpc r29,r17
+ 319:lcd_lib.c     **** 	
+ 320:lcd_lib.c     **** 	// print exactly "length" characters
+ 321:lcd_lib.c     **** 	for(i=0; i<length; i++)
+ 322:lcd_lib.c     **** 	{
+ 323:lcd_lib.c     **** 		// check if this is a full block, or partial or empty
+ 324:lcd_lib.c     **** 		// (u16) cast is needed to avoid sign comparison warning
+ 325:lcd_lib.c     **** 		if( ((i*(uint16_t)PROGRESSPIXELS_PER_CHAR)+5) > pixelprogress )
+ 326:lcd_lib.c     **** 		{
+ 327:lcd_lib.c     **** 			// this is a partial or empty block
+ 328:lcd_lib.c     **** 			if( ((i*(uint16_t)PROGRESSPIXELS_PER_CHAR)) > pixelprogress )
+ 329:lcd_lib.c     **** 			{
+ 330:lcd_lib.c     **** 				// this is an empty block
+ 331:lcd_lib.c     **** 				// use space character?
+ 332:lcd_lib.c     **** 				c = 0;
+ 333:lcd_lib.c     **** 			}
+ 334:lcd_lib.c     **** 			else
+ 335:lcd_lib.c     **** 			{
+ 336:lcd_lib.c     **** 				// this is a partial block
+ 337:lcd_lib.c     **** 				c = pixelprogress % PROGRESSPIXELS_PER_CHAR;
+ 788               	,r14
+ 789               		rjmp .L68
+ 790 01ac CB01      	.L69:
+ 791 01ae 66E0      		ldi r24,lo8(0)
+ 792 01b0 70E0      	.L68:
+ 794 01b4 E82E      	.LM67:
+ 795 01b6 FF24      		rcall LCDsendChar
+ 797 01ba 10E0      	.LM68:
+ 798 01bc 00C0      		inc r15
+ 799               		subi r16,lo8(-(6))
+ 800               		sbci r17,hi8(-(6))
+ 801               	.L64:
+ 802 01be C801      		cp r15,r13
+ 803 01c0 0596      		brne .L65
+ 804 01c2 C817      	/* epilogue: frame size=0 */
+ 805 01c4 D907      		pop r29
+ 806 01c6 00F0      		pop r28
+ 807 01c8 85E0      		pop r17
+ 808 01ca 00C0      		pop r16
+ 809               		pop r15
+ 810               		pop r14
+ 811               		pop r13
+ 812 01cc C017      		ret
+ 813 01ce D107      	/* epilogue end (size=8) */
+ 814 01d0 00F0      	/* function LCDprogressBar size 61 (46) */
+ 338:lcd_lib.c     **** 			}
+ 339:lcd_lib.c     **** 		}
+ 340:lcd_lib.c     **** 		else
+ 341:lcd_lib.c     **** 		{
+ 342:lcd_lib.c     **** 			// this is a full block
+ 343:lcd_lib.c     **** 			c = 5;
+ 344:lcd_lib.c     **** 		}
+ 345:lcd_lib.c     **** 		
+ 346:lcd_lib.c     **** 		// write character to display
+ 347:lcd_lib.c     **** 		LCDsendChar(c);
+ 820               	8
+ 821               	.Lscope18:
+ 823               	.global	LCDinit
+ 825 01da F394      	LCDinit:
+ 827 01de 1F4F      	.LM69:
+ 828               	.LFBB19:
+ 829 01e0 FD14      	/* prologue: frame size=0 */
+ 830 01e2 01F4      		push r16
+ 831               		push r17
+ 832 01e4 DF91      		push r28
+ 833 01e6 CF91      		push r29
+ 834 01e8 1F91      	/* prologue end (size=4) */
+ 835 01ea 0F91      	.LBB118:
+ 836 01ec FF90      	.LBB119:
+ 837 01ee EF90      	.LBB120:
+ 838 01f0 DF90      	.LBB121:
+ 840               	.Ltext9:
+ 842               	.LM70:
+ 843               		ldi r24,lo8(15000)
+ 844               		ldi r25,hi8(15000)
+ 845               	/* #APP */
+ 846               		1: sbiw r24,1
+ 847               		brne 1b
+ 848               	/* #NOAPP */
+ 849               	.LBE121:
+ 850               	.LBE120:
+ 851               	.LBE119:
+ 852               	.LBE118:
+ 854               	.Ltext10:
+ 856               	.LM71:
+ 857 01f4 0F93      		out 50-0x20,__zero_reg__
+ 859 01f8 CF93      	.LM72:
+ 860 01fa DF93      		out 56-0x20,__zero_reg__
+ 862               	.LM73:
+ 863               		in r24,49-0x20
+ 864               		ldi r24,lo8(-1)
+ 865               		out 49-0x20,r24
+ 867               	.LM74:
+ 868               		in r24,55-0x20
+ 869               		ori r24,lo8(7)
+ 870 01fc 88E9      		out 55-0x20,r24
+ 872               	.LM75:
+ 873 0200 0197      		ldi r18,lo8(48)
+ 874 0202 01F4      		out 50-0x20,r18
+ 876               	.LM76:
+ 877               		sbi 56-0x20,2
+ 878               	.LBB122:
+ 879               	.LBB123:
+ 880               	.LBB124:
+ 881               	.LBB125:
+ 883               	.Ltext11:
+ 885               	.LM77:
+ 886               		ldi r24,lo8(1000)
+ 887 0206 18BA      		ldi r25,hi8(1000)
+ 888               		movw r30,r24
+ 889               	/* #APP */
+ 890 0208 81B3      		1: sbiw r30,1
+ 891 020a 8FEF      		brne 1b
+ 892 020c 81BB      	/* #NOAPP */
+ 893               	.LBE125:
+ 894               	.LBE124:
+ 895 020e 87B3      	.LBE123:
+ 896 0210 8760      	.LBE122:
+ 898               	.Ltext12:
+ 900 0214 20E3      	.LM78:
+ 901 0216 22BB      		cbi 56-0x20,2
+ 902               	.LBB126:
+ 903               	.LBB127:
+ 904 0218 C29A      	.LBB128:
+ 905               	.LBB129:
+ 907               	.Ltext13:
+ 909               	.LM79:
+ 910               		movw r30,r24
+ 911               	/* #APP */
+ 912               		1: sbiw r30,1
+ 913 021a 88EE      		brne 1b
+ 914 021c 93E0      	/* #NOAPP */
+ 915 021e FC01      	.LBE129:
+ 916               	.LBE128:
+ 917 0220 3197      	.LBE127:
+ 918 0222 01F4      	.LBE126:
+ 920               	.Ltext14:
+ 922               	.LM80:
+ 923               		out 50-0x20,r18
+ 925               	.LM81:
+ 926               		sbi 56-0x20,2
+ 927               	.LBB130:
+ 928 0224 C298      	.LBB131:
+ 929               	.LBB132:
+ 930               	.LBB133:
+ 932               	.Ltext15:
+ 934               	.LM82:
+ 935               		movw r30,r24
+ 936               	/* #APP */
+ 937 0226 FC01      		1: sbiw r30,1
+ 938               		brne 1b
+ 939 0228 3197      	/* #NOAPP */
+ 940 022a 01F4      	.LBE133:
+ 941               	.LBE132:
+ 942               	.LBE131:
+ 943               	.LBE130:
+ 945               	.Ltext16:
+ 947               	.LM83:
+ 948               		cbi 56-0x20,2
+ 949               	.LBB134:
+ 950 022c 22BB      	.LBB135:
+ 951               	.LBB136:
+ 952               	.LBB137:
+ 954               	.Ltext17:
+ 956               	.LM84:
+ 957               		movw r30,r24
+ 958               	/* #APP */
+ 959               		1: sbiw r30,1
+ 960               		brne 1b
+ 961               	/* #NOAPP */
+ 962 0230 FC01      	.LBE137:
+ 963               	.LBE136:
+ 964 0232 3197      	.LBE135:
+ 965 0234 01F4      	.LBE134:
+ 967               	.Ltext18:
+ 969               	.LM85:
+ 970               		out 50-0x20,r18
+ 972               	.LM86:
+ 973               		sbi 56-0x20,2
+ 974               	.LBB138:
+ 975 0236 C298      	.LBB139:
+ 976               	.LBB140:
+ 977               	.LBB141:
+ 979               	.Ltext19:
+ 981               	.LM87:
+ 982               		movw r30,r24
+ 983               	/* #APP */
+ 984 0238 FC01      		1: sbiw r30,1
+ 985               		brne 1b
+ 986 023a 3197      	/* #NOAPP */
+ 987 023c 01F4      	.LBE141:
+ 988               	.LBE140:
+ 989               	.LBE139:
+ 990               	.LBE138:
+ 992               	.Ltext20:
+ 994               	.LM88:
+ 995               		cbi 56-0x20,2
+ 996               	.LBB142:
+ 997 023e 22BB      	.LBB143:
+ 998               	.LBB144:
+ 999               	.LBB145:
+ 1001               	.Ltext21:
+ 1003               	.LM89:
+ 1004               		movw r30,r24
+ 1005               	/* #APP */
+ 1006               		1: sbiw r30,1
+ 1007               		brne 1b
+ 1008               	/* #NOAPP */
+ 1009 0242 FC01      	.LBE145:
+ 1010               	.LBE144:
+ 1011 0244 3197      	.LBE143:
+ 1012 0246 01F4      	.LBE142:
+ 1014               	.Ltext22:
+ 1016               	.LM90:
+ 1017               		ldi r18,lo8(56)
+ 1018               		out 50-0x20,r18
+ 1020               	.LM91:
+ 1021               		sbi 56-0x20,2
+ 1022 0248 C298      	.LBB146:
+ 1023               	.LBB147:
+ 1024               	.LBB148:
+ 1025               	.LBB149:
+ 1027               	.Ltext23:
+ 1029               	.LM92:
+ 1030               		movw r30,r24
+ 1031 024a FC01      	/* #APP */
+ 1032               		1: sbiw r30,1
+ 1033 024c 3197      		brne 1b
+ 1034 024e 01F4      	/* #NOAPP */
+ 1035               	.LBE149:
+ 1036               	.LBE148:
+ 1037               	.LBE147:
+ 1038               	.LBE146:
+ 1040               	.Ltext24:
+ 1042               	.LM93:
+ 1043               		cbi 56-0x20,2
+ 1044 0250 28E3      	.LBB150:
+ 1045 0252 22BB      	.LBB151:
+ 1046               	.LBB152:
+ 1047               	.LBB153:
+ 1049               	.Ltext25:
+ 1051               	.LM94:
+ 1052               		movw r30,r24
+ 1053               	/* #APP */
+ 1054               		1: sbiw r30,1
+ 1055               		brne 1b
+ 1056               	/* #NOAPP */
+ 1057 0256 FC01      	.LBE153:
+ 1058               	.LBE152:
+ 1059 0258 3197      	.LBE151:
+ 1060 025a 01F4      	.LBE150:
+ 1062               	.Ltext26:
+ 1064               	.LM95:
+ 1065               		ldi r18,lo8(12)
+ 1066               		out 50-0x20,r18
+ 1068               	.LM96:
+ 1069               		sbi 56-0x20,2
+ 1070 025c C298      	.LBB154:
+ 1071               	.LBB155:
+ 1072               	.LBB156:
+ 1073               	.LBB157:
+ 1075               	.Ltext27:
+ 1077               	.LM97:
+ 1078               	/* #APP */
+ 1079 025e FC01      		1: sbiw r24,1
+ 1080               		brne 1b
+ 1081 0260 3197      	/* #NOAPP */
+ 1082 0262 01F4      	.LBE157:
+ 1083               	.LBE156:
+ 1084               	.LBE155:
+ 1085               	.LBE154:
+ 1087               	.Ltext28:
+ 1089               	.LM98:
+ 1090               		cbi 56-0x20,2
+ 1091               	.LBB158:
+ 1092 0264 2CE0      	.LBB159:
+ 1093 0266 22BB      	.LBB160:
+ 1094               	.LBB161:
+ 1096 0268 C29A      	.Ltext29:
+ 1098               	.LM99:
+ 1099               		ldi r24,lo8(5000)
+ 1100               		ldi r25,hi8(5000)
+ 1101               	/* #APP */
+ 1102               		1: sbiw r24,1
+ 1103               		brne 1b
+ 1104               	/* #NOAPP */
+ 1105               		ldi r16,lo8(LcdCustomChar)
+ 1106 026a 0197      		ldi r17,hi8(LcdCustomChar)
+ 1107 026c 01F4      		ldi r28,lo8(0)
+ 1108               		ldi r29,hi8(0)
+ 1109               	.L74:
+ 1110               	.LBE161:
+ 1111               	.LBE160:
+ 1112               	.LBE159:
+ 1113               	.LBE158:
+ 1115               	.Ltext30:
+ 1117 026e C298      	.LM100:
+ 1118               		mov r22,r28
+ 1119               		movw r24,r16
+ 1120               		rcall LCDdefinechar
+ 1121               		adiw r28,1
+ 1122               		subi r16,lo8(-(8))
+ 1123               		sbci r17,hi8(-(8))
+ 1125               	.LM101:
+ 1126 0270 88E8      		cpi r28,8
+ 1127 0272 93E1      		cpc r29,__zero_reg__
+ 1128               		brne .L74
+ 1129 0274 0197      	/* epilogue: frame size=0 */
+ 1130 0276 01F4      		pop r29
+ 1131               		pop r28
+ 1132 0278 00E0      		pop r17
+ 1133 027a 10E0      		pop r16
+ 1134 027c C0E0      		ret
+ 1135 027e D0E0      	/* epilogue end (size=5) */
+ 1136               	/* function LCDinit size 106 (97) */
+ 1171               	.Lscope19:
+ 1172               	.global	LcdCustomChar
+ 1173               		.section	.progmem.data,"a",@progbits
+ 1176               	LcdCustomChar:
+ 1177               		.byte	0
+ 1178               		.byte	31
+ 1179               		.byte	0
+ 1180               		.byte	0
+ 1181               		.byte	0
+ 1182               		.byte	0
+ 1183               		.byte	31
+ 1184               		.byte	0
+ 1185               		.byte	0
+ 1186               		.byte	31
+ 1187               		.byte	16
+ 1188               		.byte	16
+ 1189               		.byte	16
+ 1190               		.byte	16
+ 1191               		.byte	31
+ 1192               		.byte	0
+ 1193               		.byte	0
+ 1194               		.byte	31
+ 1195               		.byte	24
+ 1196               		.byte	24
+ 1197               		.byte	24
+ 1198               		.byte	24
+ 1199               		.byte	31
+ 1200               		.byte	0
+ 1201               		.byte	0
+ 1202               		.byte	31
+ 1203               		.byte	28
+ 1204 0000 00        		.byte	28
+ 1205 0001 1F        		.byte	28
+ 1206 0002 00        		.byte	28
+ 1207 0003 00        		.byte	31
+ 1208 0004 00        		.byte	0
+ 1209 0005 00        		.byte	0
+ 1210 0006 1F        		.byte	31
+ 1211 0007 00        		.byte	30
+ 1212 0008 00        		.byte	30
+ 1213 0009 1F        		.byte	30
+ 1214 000a 10        		.byte	30
+ 1215 000b 10        		.byte	31
+ 1216 000c 10        		.byte	0
+ 1217 000d 10        		.byte	0
+ 1218 000e 1F        		.byte	31
+ 1219 000f 00        		.byte	31
+ 1220 0010 00        		.byte	31
+ 1221 0011 1F        		.byte	31
+ 1222 0012 18        		.byte	31
+ 1223 0013 18        		.byte	31
+ 1224 0014 18        		.byte	0
+ 1225 0015 18        		.byte	3
+ 1226 0016 1F        		.byte	7
+ 1227 0017 00        		.byte	15
+ 1228 0018 00        		.byte	31
+ 1229 0019 1F        		.byte	15
+ 1230 001a 1C        		.byte	7
+ 1231 001b 1C        		.byte	3
+ 1232 001c 1C        		.byte	0
+ 1233 001d 1C        		.byte	24
+ 1234 001e 1F        		.byte	28
+ 1235 001f 00        		.byte	30
+ 1236 0020 00        		.byte	31
+ 1237 0021 1F        		.byte	30
+ 1238 0022 1E        		.byte	28
+ 1239 0023 1E        		.byte	24
+ 1240 0024 1E        		.byte	0
+ 1242 0026 1F        		.text
+ 1244 0028 00        	.Letext0:
+ 1245 0029 1F        	/* File "lcd_lib.c": code  370 = 0x0172 ( 285), prologues  33, epilogues  52 */
+ 1246 002a 1F        	...
+DEFINED SYMBOLS
+                            *ABS*:00000000 lcd_lib.c
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:2      *ABS*:0000003f __SREG__
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:3      *ABS*:0000003e __SP_H__
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:4      *ABS*:0000003d __SP_L__
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:5      *ABS*:00000000 __tmp_reg__
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:6      *ABS*:00000001 __zero_reg__
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:89     .text:00000000 LCDsendChar
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:163    .text:0000001a LCDsendCommand
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:232    .text:00000030 LCDclr
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:253    .text:00000036 LCDhome
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:274    .text:0000003c LCDstring
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:324    .text:00000064 LCDGotoXY
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:373    .text:00000080 CopyStringtoLCD
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:430    .text:000000b0 LCDdefinechar
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:502    .text:000000f4 LCDshiftLeft
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:541    .text:0000010e LCDshiftRight
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:579    .text:00000128 LCDcursorOn
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:598    .text:0000012e LCDcursorOnBlink
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:617    .text:00000134 LCDcursorOFF
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:636    .text:0000013a LCDblank
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:655    .text:00000140 LCDvisible
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:675    .text:00000146 LCDcursorLeft
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:714    .text:00000160 LCDcursorRight
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:755    .text:0000017a LCDprogressBar
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:852    .text:000001f4 LCDinit
+C:\DOCUME~1\MINDAU~1.OFF\LOCALS~1\Temp/ccHLeQXJ.s:1203   .progmem.data:00000000 LcdCustomChar
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+__divmodhi4
+__udivmodhi4

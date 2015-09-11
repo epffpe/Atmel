@@ -1,0 +1,7 @@
+Address = 0x00000038  File:line:col:begin = D:\Designs\Atmel\borrar\default/../borrar.c:3:0:-1
+Address = 0x00000038  File:line:col:begin = D:\Designs\Atmel\borrar\default/../borrar.c:4:0:-1
+Address = 0x0000003c  File:line:col:begin = D:\Designs\Atmel\borrar\default/../borrar.c:5:0:-1
+Address = 0x0000003e  File:line:col:begin = D:\Designs\Atmel\borrar\default/../borrar.c:6:0:-1
+Address = 0x00000040  File:line:col:begin = D:\Designs\Atmel\borrar\default/../borrar.c:9:0:-1
+Address = 0x00000042  File:line:col:begin = D:\Designs\Atmel\borrar\default/../borrar.c:10:0:-1
+Address = 0x00000046  File:line:col:begin = D:\Designs\Atmel\borrar\default/../borrar.c:10:0:-1

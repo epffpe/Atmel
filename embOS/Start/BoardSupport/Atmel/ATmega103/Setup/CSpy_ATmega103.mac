@@ -1,0 +1,14 @@
+//
+// CSpy_ATxmega128.mac
+// Interrupt simulation for embOS timer tick
+//
+
+execUserSetup()
+{
+  __message "CSpy_ATmega103.mac: execUserSetup()";
+  __disableInterrupts();
+  __cancelAllInterrupts();
+  __orderInterrupt ("TIMER1 COMPA", 50000, 5000, 0, 0, 100);
+  __enableInterrupts();
+  __message "CSpy_ATmega103.mac: Generating embOS timer interrupts every 5000 cycles\n";
+}

@@ -1,0 +1,4 @@
+Warning[205] C:\DEVKIT\FUELGAUGE\APPNOTE\FUELGAUGEAPPNOTE_MAIN_VER1.ASM 142 : Found directive in column 1. (radix)
+Warning[202] C:\DEVKIT\FUELGAUGE\APPNOTE\FUELGAUGEAPPNOTE_MAIN_VER1.ASM 2881 : Argument out of range.  Least significant bits used.
+Warning[202] C:\DEVKIT\FUELGAUGE\APPNOTE\FUELGAUGEAPPNOTE_MAIN_VER1.ASM 3013 : Argument out of range.  Least significant bits used.
+Warning[202] C:\DEVKIT\FUELGAUGE\APPNOTE\FUELGAUGEAPPNOTE_MAIN_VER1.ASM 3050 : Argument out of range.  Least significant bits used.

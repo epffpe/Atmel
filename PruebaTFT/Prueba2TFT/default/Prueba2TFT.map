@@ -1,0 +1,434 @@
+Archive member included because of file (symbol)
+
+c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+                              c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm32.o (exit)
+c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_copy_data.o)
+                              Prueba2TFT.o (__do_copy_data)
+c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_clear_bss.o)
+                              GLCD.o (__do_clear_bss)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+text             0x00000000         0x00020000         xr
+data             0x00800060         0x0000ffa0         rw !x
+eeprom           0x00810000         0x00010000         rw !x
+fuse             0x00820000         0x00000400         rw !x
+lock             0x00830000         0x00000400         rw !x
+signature        0x00840000         0x00000400         rw !x
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm32.o
+LOAD Prueba2TFT.o
+LOAD delay.o
+LOAD lcd.o
+LOAD GLCD.o
+LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
+LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5\libc.a
+LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
+
+.hash
+ *(.hash)
+
+.dynsym
+ *(.dynsym)
+
+.dynstr
+ *(.dynstr)
+
+.gnu.version
+ *(.gnu.version)
+
+.gnu.version_d
+ *(.gnu.version_d)
+
+.gnu.version_r
+ *(.gnu.version_r)
+
+.rel.init
+ *(.rel.init)
+
+.rela.init
+ *(.rela.init)
+
+.rel.text
+ *(.rel.text)
+ *(.rel.text.*)
+ *(.rel.gnu.linkonce.t*)
+
+.rela.text
+ *(.rela.text)
+ *(.rela.text.*)
+ *(.rela.gnu.linkonce.t*)
+
+.rel.fini
+ *(.rel.fini)
+
+.rela.fini
+ *(.rela.fini)
+
+.rel.rodata
+ *(.rel.rodata)
+ *(.rel.rodata.*)
+ *(.rel.gnu.linkonce.r*)
+
+.rela.rodata
+ *(.rela.rodata)
+ *(.rela.rodata.*)
+ *(.rela.gnu.linkonce.r*)
+
+.rel.data
+ *(.rel.data)
+ *(.rel.data.*)
+ *(.rel.gnu.linkonce.d*)
+
+.rela.data
+ *(.rela.data)
+ *(.rela.data.*)
+ *(.rela.gnu.linkonce.d*)
+
+.rel.ctors
+ *(.rel.ctors)
+
+.rela.ctors
+ *(.rela.ctors)
+
+.rel.dtors
+ *(.rel.dtors)
+
+.rela.dtors
+ *(.rela.dtors)
+
+.rel.got
+ *(.rel.got)
+
+.rela.got
+ *(.rela.got)
+
+.rel.bss
+ *(.rel.bss)
+
+.rela.bss
+ *(.rela.bss)
+
+.rel.plt
+ *(.rel.plt)
+
+.rela.plt
+ *(.rela.plt)
+
+.text           0x00000000     0x1738
+ *(.vectors)
+ .vectors       0x00000000       0x54 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm32.o
+                0x00000000                __vectors
+                0x00000000                __vector_default
+ *(.vectors)
+ *(.progmem.gcc*)
+ *(.progmem*)
+ .progmem.data  0x00000054      0x5f0 lcd.o
+                0x00000054                english
+                0x00000644                . = ALIGN (0x2)
+                0x00000644                __trampolines_start = .
+ *(.trampolines)
+ .trampolines   0x00000644        0x0 linker stubs
+ *(.trampolines*)
+                0x00000644                __trampolines_end = .
+ *(.jumptables)
+ *(.jumptables*)
+ *(.lowtext)
+ *(.lowtext*)
+                0x00000644                __ctors_start = .
+ *(.ctors)
+                0x00000644                __ctors_end = .
+                0x00000644                __dtors_start = .
+ *(.dtors)
+                0x00000644                __dtors_end = .
+ SORT(*)(.ctors)
+ SORT(*)(.dtors)
+ *(.init0)
+ .init0         0x00000644        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm32.o
+                0x00000644                __init
+ *(.init0)
+ *(.init1)
+ *(.init1)
+ *(.init2)
+ .init2         0x00000644        0xc c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm32.o
+ *(.init2)
+ *(.init3)
+ *(.init3)
+ *(.init4)
+ .init4         0x00000650       0x16 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_copy_data.o)
+                0x00000650                __do_copy_data
+ .init4         0x00000666       0x10 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_clear_bss.o)
+                0x00000666                __do_clear_bss
+ *(.init4)
+ *(.init5)
+ *(.init5)
+ *(.init6)
+ *(.init6)
+ *(.init7)
+ *(.init7)
+ *(.init8)
+ *(.init8)
+ *(.init9)
+ .init9         0x00000676        0x8 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm32.o
+ *(.init9)
+ *(.text)
+ .text          0x0000067e        0x4 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm32.o
+                0x0000067e                __vector_1
+                0x0000067e                __vector_12
+                0x0000067e                __bad_interrupt
+                0x0000067e                __vector_6
+                0x0000067e                __vector_3
+                0x0000067e                __vector_11
+                0x0000067e                __vector_13
+                0x0000067e                __vector_17
+                0x0000067e                __vector_19
+                0x0000067e                __vector_7
+                0x0000067e                __vector_5
+                0x0000067e                __vector_4
+                0x0000067e                __vector_9
+                0x0000067e                __vector_2
+                0x0000067e                __vector_15
+                0x0000067e                __vector_8
+                0x0000067e                __vector_14
+                0x0000067e                __vector_10
+                0x0000067e                __vector_16
+                0x0000067e                __vector_18
+                0x0000067e                __vector_20
+ .text          0x00000682       0x34 Prueba2TFT.o
+                0x00000682                main
+ .text          0x000006b6        0x4 delay.o
+                0x000006b6                delay_us
+                0x000006b8                delay_ms
+ .text          0x000006ba      0x756 lcd.o
+                0x000008a6                LCD_Clear
+                0x0000079e                LCD_WR_REG
+                0x00000c10                Test
+                0x000006fa                LCD_WR_DATA16
+                0x00000d56                GUI_Point
+                0x0000072e                LCD_write_english
+                0x000007b4                LCD_SetCursor
+                0x00000934                LCD_Init
+                0x000007d6                Lcd_SetBox
+                0x000006ba                LCD_WR_REG16
+                0x00000d90                LCD_write_SUM
+                0x0000084a                LCD_write_english_string
+ .text          0x00000e10      0x924 GLCD.o
+                0x0000121e                GLCD_PutPixel
+                0x00000e12                wait_delay
+                0x00000e52                GLCD_Init
+                0x00001536                GLCD_Bitmap
+                0x00000e10                wait
+                0x0000126c                GLCD_Clear
+                0x00001262                GLCD_SetBackColor
+                0x00001426                GLCD_ClearLn
+                0x00001444                GLCD_Bargraph
+                0x000011f4                GLCD_WindowMax
+                0x00001638                GLCD_Bmp
+                0x00001258                GLCD_SetTextColor
+                0x000013da                GLCD_DisplayString
+                0x000013a4                GLCD_DisplayChar
+                0x000012d4                GLCD_DrawChar
+ .text          0x00001734        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+ .text          0x00001734        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_copy_data.o)
+ .text          0x00001734        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_clear_bss.o)
+                0x00001734                . = ALIGN (0x2)
+ *(.text.*)
+ .text.libgcc   0x00001734        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+ .text.libgcc   0x00001734        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_copy_data.o)
+ .text.libgcc   0x00001734        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_clear_bss.o)
+                0x00001734                . = ALIGN (0x2)
+ *(.fini9)
+ .fini9         0x00001734        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+                0x00001734                exit
+                0x00001734                _exit
+ *(.fini9)
+ *(.fini8)
+ *(.fini8)
+ *(.fini7)
+ *(.fini7)
+ *(.fini6)
+ *(.fini6)
+ *(.fini5)
+ *(.fini5)
+ *(.fini4)
+ *(.fini4)
+ *(.fini3)
+ *(.fini3)
+ *(.fini2)
+ *(.fini2)
+ *(.fini1)
+ *(.fini1)
+ *(.fini0)
+ .fini0         0x00001734        0x4 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+ *(.fini0)
+                0x00001738                _etext = .
+
+.data           0x00800060     0x1526 load address 0x00001738
+                0x00800060                PROVIDE (__data_start, .)
+ *(.data)
+ .data          0x00800060        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm32.o
+ .data          0x00800060        0xf Prueba2TFT.o
+ .data          0x0080006f        0x0 delay.o
+ .data          0x0080006f        0x0 lcd.o
+ .data          0x0080006f     0x1517 GLCD.o
+                0x00800084                Font_24x16
+ .data          0x00801586        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+ .data          0x00801586        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_copy_data.o)
+ .data          0x00801586        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_clear_bss.o)
+ *(.data*)
+ *(.rodata)
+ *(.rodata*)
+ *(.gnu.linkonce.d*)
+                0x00801586                . = ALIGN (0x2)
+                0x00801586                _edata = .
+                0x00801586                PROVIDE (__data_end, .)
+
+.bss            0x00801586        0x4
+                0x00801586                PROVIDE (__bss_start, .)
+ *(.bss)
+ .bss           0x00801586        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm32.o
+ .bss           0x00801586        0x0 Prueba2TFT.o
+ .bss           0x00801586        0x0 delay.o
+ .bss           0x00801586        0x0 lcd.o
+ .bss           0x00801586        0x4 GLCD.o
+ .bss           0x0080158a        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+ .bss           0x0080158a        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_copy_data.o)
+ .bss           0x0080158a        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_clear_bss.o)
+ *(.bss*)
+ *(COMMON)
+                0x0080158a                PROVIDE (__bss_end, .)
+                0x00001738                __data_load_start = LOADADDR (.data)
+                0x00002c5e                __data_load_end = (__data_load_start + SIZEOF (.data))
+
+.noinit         0x0080158a        0x0
+                0x0080158a                PROVIDE (__noinit_start, .)
+ *(.noinit*)
+                0x0080158a                PROVIDE (__noinit_end, .)
+                0x0080158a                _end = .
+                0x0080158a                PROVIDE (__heap_start, .)
+
+.eeprom         0x00810000        0x0
+ *(.eeprom*)
+                0x00810000                __eeprom_end = .
+
+.fuse
+ *(.fuse)
+ *(.lfuse)
+ *(.hfuse)
+ *(.efuse)
+
+.lock
+ *(.lock*)
+
+.signature
+ *(.signature*)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment
+ *(.comment)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x00000000       0x80
+ *(.debug_aranges)
+ .debug_aranges
+                0x00000000       0x20 Prueba2TFT.o
+ .debug_aranges
+                0x00000020       0x20 delay.o
+ .debug_aranges
+                0x00000040       0x20 lcd.o
+ .debug_aranges
+                0x00000060       0x20 GLCD.o
+
+.debug_pubnames
+                0x00000000      0x254
+ *(.debug_pubnames)
+ .debug_pubnames
+                0x00000000       0x1b Prueba2TFT.o
+ .debug_pubnames
+                0x0000001b       0x2c delay.o
+ .debug_pubnames
+                0x00000047       0xe8 lcd.o
+ .debug_pubnames
+                0x0000012f      0x125 GLCD.o
+
+.debug_info     0x00000000      0xd52
+ *(.debug_info)
+ .debug_info    0x00000000       0x8d Prueba2TFT.o
+ .debug_info    0x0000008d       0x8f delay.o
+ .debug_info    0x0000011c      0x44d lcd.o
+ .debug_info    0x00000569      0x7e9 GLCD.o
+ *(.gnu.linkonce.wi.*)
+
+.debug_abbrev   0x00000000      0x489
+ *(.debug_abbrev)
+ .debug_abbrev  0x00000000       0x50 Prueba2TFT.o
+ .debug_abbrev  0x00000050       0x7b delay.o
+ .debug_abbrev  0x000000cb      0x14f lcd.o
+ .debug_abbrev  0x0000021a      0x26f GLCD.o
+
+.debug_line     0x00000000     0x10c4
+ *(.debug_line)
+ .debug_line    0x00000000       0x89 Prueba2TFT.o
+ .debug_line    0x00000089       0x6c delay.o
+ .debug_line    0x000000f5      0x6bb lcd.o
+ .debug_line    0x000007b0      0x914 GLCD.o
+
+.debug_frame    0x00000000      0x250
+ *(.debug_frame)
+ .debug_frame   0x00000000       0x20 Prueba2TFT.o
+ .debug_frame   0x00000020       0x30 delay.o
+ .debug_frame   0x00000050       0xd0 lcd.o
+ .debug_frame   0x00000120      0x130 GLCD.o
+
+.debug_str      0x00000000      0x30f
+ *(.debug_str)
+ .debug_str     0x00000000       0x9b Prueba2TFT.o
+                                 0xcf (size before relaxing)
+ .debug_str     0x0000009b       0x22 delay.o
+                                 0x69 (size before relaxing)
+ .debug_str     0x000000bd       0xf3 lcd.o
+                                0x1bb (size before relaxing)
+ .debug_str     0x000001b0      0x15f GLCD.o
+                                0x23c (size before relaxing)
+
+.debug_loc      0x00000000      0xb19
+ *(.debug_loc)
+ .debug_loc     0x00000000      0x4f2 lcd.o
+ .debug_loc     0x000004f2      0x627 GLCD.o
+
+.debug_macinfo
+ *(.debug_macinfo)
+OUTPUT(Prueba2TFT.elf elf32-avr)
+LOAD linker stubs

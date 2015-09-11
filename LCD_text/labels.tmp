@@ -1,0 +1,43 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.1.30</VERSION>
+ <DEVICE>ATmega48</DEVICE>
+ <WORKING_DIR>D:\Designs\Atmel\LCD_text</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>C:\Archivos de programa\Atmel\AVR Tools\AvrAssembler2\Appnotes</DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:\Archivos de programa\Atmel\AVR Tools\AvrAssembler2\Appnotes\m48def.inc</FILE>
+  <FILE>D:\Designs\Atmel\LCD_text\LCD_DEF.ASM</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>D:\Designs\Atmel\LCD_text\LCD_text.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>D:\Designs\Atmel\LCD_text\LCD_text.hex</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>D:\Designs\Atmel\LCD_text\LCD_text.map</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <RESET><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>26</LINE></RESET>
+  <HI_DELAY><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>215</LINE></HI_DELAY>
+  <main_loop><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>47</LINE></main_loop>
+  <LCD_INIT><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>56</LINE></LCD_INIT>
+  <LCD_MENSAJE><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>90</LINE></LCD_MENSAJE>
+  <LCD_COMANDO><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>160</LINE></LCD_COMANDO>
+  <LOW_DELAY><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>196</LINE></LOW_DELAY>
+  <msg1><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>244</LINE></msg1>
+  <MAS1><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>99</LINE></MAS1>
+  <LCD_DATO><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>175</LINE></LCD_DATO>
+  <MAS2><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>112</LINE></MAS2>
+  <big_delay><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>229</LINE></big_delay>
+  <msg2><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>250</LINE></msg2>
+  <MAS3><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>131</LINE></MAS3>
+  <MAS4><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>144</LINE></MAS4>
+  <ld_hi><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>200</LINE></ld_hi>
+  <loop_in><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>201</LINE></loop_in>
+  <more_call><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>218</LINE></more_call>
+  <more_big><FILE>D:\Designs\Atmel\LCD_text\LCD_text.asm</FILE><LINE>231</LINE></more_big>
+ </LABELS>
+</ASSEMBLER_INFO>

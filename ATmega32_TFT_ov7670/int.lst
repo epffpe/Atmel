@@ -1,0 +1,172 @@
+   1               		.file	"int.c"
+   2               		.arch atmega32
+   3               	__SREG__ = 0x3f
+   4               	__SP_H__ = 0x3e
+   5               	__SP_L__ = 0x3d
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.global __do_copy_data
+   9               		.global __do_clear_bss
+  17               	.Ltext0:
+  18               	.global	val1
+  19               	.global	val1
+  20               		.section .bss
+  23               	val1:
+  24 0000 00        		.skip 1,0
+  25               		.text
+  26               	.global	Init_INT0
+  28               	Init_INT0:
+  29               	.LFB2:
+  30               	.LM1:
+  31               	/* prologue: frame size=0 */
+  32               	/* prologue end (size=0) */
+  33               	.LM2:
+  34 0000 8FB7      		in r24,95-0x20
+  35 0002 8068      		ori r24,lo8(-128)
+  36 0004 8FBF      		out 95-0x20,r24
+  37               	.LM3:
+  38 0006 85B7      		in r24,85-0x20
+  39 0008 8260      		ori r24,lo8(2)
+  40 000a 85BF      		out 85-0x20,r24
+  41               	.LM4:
+  42 000c 80E4      		ldi r24,lo8(64)
+  43 000e 8BBF      		out 91-0x20,r24
+  44               	/* epilogue: frame size=0 */
+  45 0010 0895      		ret
+  46               	/* epilogue end (size=1) */
+  47               	/* function Init_INT0 size 9 (8) */
+  48               	.LFE2:
+  50               	.global	__vector_1
+  52               	__vector_1:
+  53               	.LFB3:
+  54               	.LM5:
+  55               	/* prologue: frame size=0 */
+  56 0012 1F92      		push __zero_reg__
+  57 0014 0F92      		push __tmp_reg__
+  58 0016 0FB6      		in __tmp_reg__,__SREG__
+  59 0018 0F92      		push __tmp_reg__
+  60 001a 1124      		clr __zero_reg__
+  61 001c 2F93      		push r18
+  62 001e 3F93      		push r19
+  63 0020 4F93      		push r20
+  64 0022 5F93      		push r21
+  65 0024 6F93      		push r22
+  66 0026 7F93      		push r23
+  67 0028 8F93      		push r24
+  68 002a 9F93      		push r25
+  69 002c AF93      		push r26
+  70 002e BF93      		push r27
+  71 0030 EF93      		push r30
+  72 0032 FF93      		push r31
+  73               	/* prologue end (size=17) */
+  74               	.LM6:
+  75               	/* #APP */
+  76 0034 F894      		cli
+  77               	.LM7:
+  78               	/* #NOAPP */
+  79 0036 C098      		cbi 56-0x20,0
+  80               	.LM8:
+  81 0038 969A      		sbi 50-0x20,6
+  82               	.LM9:
+  83 003a 8FEF      		ldi r24,lo8(-1)
+  84 003c 84BB      		out 52-0x20,r24
+  85               	.LM10:
+  86 003e 60E0      		ldi r22,lo8(0)
+  87 0040 70E0      		ldi r23,hi8(0)
+  88 0042 80E2      		ldi r24,lo8(32)
+  89 0044 90E0      		ldi r25,hi8(32)
+  90 0046 0E94 0000 		call LCD_WR_REG
+  91               	.LM11:
+  92 004a 60E0      		ldi r22,lo8(0)
+  93 004c 70E0      		ldi r23,hi8(0)
+  94 004e 81E2      		ldi r24,lo8(33)
+  95 0050 90E0      		ldi r25,hi8(33)
+  96 0052 0E94 0000 		call LCD_WR_REG
+  97               	.LM12:
+  98 0056 60E0      		ldi r22,lo8(0)
+  99 0058 70E0      		ldi r23,hi8(0)
+ 100 005a 80E5      		ldi r24,lo8(80)
+ 101 005c 90E0      		ldi r25,hi8(80)
+ 102 005e 0E94 0000 		call LCD_WR_REG
+ 103               	.LM13:
+ 104 0062 6FEE      		ldi r22,lo8(239)
+ 105 0064 70E0      		ldi r23,hi8(239)
+ 106 0066 81E5      		ldi r24,lo8(81)
+ 107 0068 90E0      		ldi r25,hi8(81)
+ 108 006a 0E94 0000 		call LCD_WR_REG
+ 109               	.LM14:
+ 110 006e 60E0      		ldi r22,lo8(0)
+ 111 0070 70E0      		ldi r23,hi8(0)
+ 112 0072 82E5      		ldi r24,lo8(82)
+ 113 0074 90E0      		ldi r25,hi8(82)
+ 114 0076 0E94 0000 		call LCD_WR_REG
+ 115               	.LM15:
+ 116 007a 6FE3      		ldi r22,lo8(319)
+ 117 007c 71E0      		ldi r23,hi8(319)
+ 118 007e 83E5      		ldi r24,lo8(83)
+ 119 0080 90E0      		ldi r25,hi8(83)
+ 120 0082 0E94 0000 		call LCD_WR_REG
+ 121               	.LM16:
+ 122 0086 68E2      		ldi r22,lo8(4136)
+ 123 0088 70E1      		ldi r23,hi8(4136)
+ 124 008a 83E0      		ldi r24,lo8(3)
+ 125 008c 90E0      		ldi r25,hi8(3)
+ 126 008e 0E94 0000 		call LCD_WR_REG
+ 127               	.LM17:
+ 128 0092 82E2      		ldi r24,lo8(34)
+ 129 0094 90E0      		ldi r25,hi8(34)
+ 130 0096 0E94 0000 		call LCD_WR_REG16
+ 131               	.LM18:
+ 132 009a DD98      		cbi 59-0x20,5
+ 133               	.LM19:
+ 134 009c 14BA      		out 52-0x20,__zero_reg__
+ 135               	.LM20:
+ 136 009e DE9A      		sbi 59-0x20,6
+ 137               	.LM21:
+ 138 00a0 C39A      		sbi 56-0x20,3
+ 139               	.LM22:
+ 140 00a2 C09A      		sbi 56-0x20,0
+ 141               	.LM23:
+ 142 00a4 9698      		cbi 50-0x20,6
+ 143               	.LM24:
+ 144               	/* #APP */
+ 145 00a6 7894      		sei
+ 146               	/* #NOAPP */
+ 147               	/* epilogue: frame size=0 */
+ 148 00a8 FF91      		pop r31
+ 149 00aa EF91      		pop r30
+ 150 00ac BF91      		pop r27
+ 151 00ae AF91      		pop r26
+ 152 00b0 9F91      		pop r25
+ 153 00b2 8F91      		pop r24
+ 154 00b4 7F91      		pop r23
+ 155 00b6 6F91      		pop r22
+ 156 00b8 5F91      		pop r21
+ 157 00ba 4F91      		pop r20
+ 158 00bc 3F91      		pop r19
+ 159 00be 2F91      		pop r18
+ 160 00c0 0F90      		pop __tmp_reg__
+ 161 00c2 0FBE      		out __SREG__,__tmp_reg__
+ 162 00c4 0F90      		pop __tmp_reg__
+ 163 00c6 1F90      		pop __zero_reg__
+ 164 00c8 1895      		reti
+ 165               	/* epilogue end (size=17) */
+ 166               	/* function __vector_1 size 94 (60) */
+ 167               	.LFE3:
+ 169               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 int.c
+C:\DOCUME~1\WANGGU~1\LOCALS~1\Temp/ccQrbaaa.s:3      *ABS*:0000003f __SREG__
+C:\DOCUME~1\WANGGU~1\LOCALS~1\Temp/ccQrbaaa.s:4      *ABS*:0000003e __SP_H__
+C:\DOCUME~1\WANGGU~1\LOCALS~1\Temp/ccQrbaaa.s:5      *ABS*:0000003d __SP_L__
+C:\DOCUME~1\WANGGU~1\LOCALS~1\Temp/ccQrbaaa.s:6      *ABS*:00000000 __tmp_reg__
+C:\DOCUME~1\WANGGU~1\LOCALS~1\Temp/ccQrbaaa.s:7      *ABS*:00000001 __zero_reg__
+C:\DOCUME~1\WANGGU~1\LOCALS~1\Temp/ccQrbaaa.s:23     .bss:00000000 val1
+C:\DOCUME~1\WANGGU~1\LOCALS~1\Temp/ccQrbaaa.s:28     .text:00000000 Init_INT0
+C:\DOCUME~1\WANGGU~1\LOCALS~1\Temp/ccQrbaaa.s:52     .text:00000012 __vector_1
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+LCD_WR_REG
+LCD_WR_REG16
